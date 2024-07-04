@@ -14,6 +14,17 @@ const nextConfig = {
     config.externals.push("pino-pretty", "lokijs", "encoding");
     return config;
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        // @ts-ignore
+        hostname: "indigo-selected-seahorse-125.mypinata.cloud",
+        port: "",
+        pathname: "/ipfs/**",
+      },
+    ],
+  },
 };
 
 module.exports = nextConfig;

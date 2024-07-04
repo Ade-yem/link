@@ -1,28 +1,29 @@
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
+import { LinkContract } from "../typechain-types";
 // const {BigNumb} = require("ethers")
 
 describe("Link Contract", function () {
-  let Link;
+  let Link: any;
   let link: any;
   let owner: HardhatEthersSigner;
-  let buyer: HardhatEthersSigner;
-  let seller: HardhatEthersSigner;
+  let customer: HardhatEthersSigner;
+  let vendor: HardhatEthersSigner;
   let arbitrator: HardhatEthersSigner;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let addrs: any;
 
   beforeEach(async function () {
-    Link = await ethers.getContractFactory("Link");
-    [owner, buyer, seller, arbitrator, ...addrs] = await ethers.getSigners();
-    link = await Link.deploy(10); // Assuming 10% commission rate
+    Link = await ethers.getContractFactory("LinkContract");
+    [owner, customer, vendor, arbitrator, ...addrs] = await ethers.getSigners();
+    link = (await Link.deploy(10)) as LinkContract; // Assuming 10% commission rate
     await link.waitForDeployment();
     const transaction = {
       to: link.getAddress(),
       value: ethers.parseEther("1.0"),
     };
-    buyer.sendTransaction(transaction);
+    customer.sendTransaction(transaction);
     await link.connect(arbitrator).addArbitrator();
   });
 
@@ -37,34 +38,42 @@ describe("Link Contract", function () {
   });
 
   describe("Transactions", function () {
-    it("Should emit ProductAdded event when a new product is added", async function () {
-      const productID = await link.generateID("Gadget", seller.address);
-      await expect(link.connect(seller).addProduct("Gadget", "Features", ethers.parseEther("1"), seller.address))
-        .to.emit(link, "ProductAdded")
-        .withArgs(seller.address, "Gadget", productID, ethers.parseEther("1"));
+    it("Should emit TaskAdded event when a new task is added", async function () {
+      const taskID = await link.generateID("Gadget", vendor.address);
+      await expect(link.connect(vendor).addTask("Gadget", "Features", ethers.parseEther("1"), vendor.address))
+        .to.emit(link, "TaskAdded")
+        .withArgs(vendor.address, "Gadget", taskID, ethers.parseEther("1"));
     });
 
-    it("Should allow a buyer to purchase a product and emit ProductBought event", async function () {
-      const productID = await link.generateID("Gadget", seller.address);
-      const id = await link.connect(seller).addProduct("Gadget", "Features", ethers.parseEther("1"), seller.address);
-      console.log(id + "   =>   " + productID);
-      await expect(link.connect(buyer).buyProduct("Gadget", { value: ethers.parseEther("1") }))
-        .to.emit(link, "ProductBought")
-        .withArgs(buyer.address, seller.address, ethers.parseEther("0.1"), "Gadget", productID);
+    it("Should get all tasks created", async function () {
+      await link.connect(vendor).addTask("Gadget", "Features", ethers.parseEther("1"), vendor.address);
+      await link.connect(vendor).addTask("Gadgetss", "Featuresez", ethers.parseEther("1"), vendor.address);
+      await link.connect(vendor).addTask("Gadgets", "Features", ethers.parseEther("1"), vendor.address);
+      const req = await link.connect(vendor).getAllTasks();
+      expect(req.length).to.equal(3);
     });
 
-    it("Should fail if the product does not exist", async function () {
-      const fakeProductName = "ethers.encodeBytes32String";
+    it("Should allow a customer to purchase a task and emit TaskPaid event", async function () {
+      const taskID = await link.generateID("Gadget", vendor.address);
+      const id = await link.connect(vendor).addTask("Gadget", "Features", ethers.parseEther("1"), vendor.address);
+      console.log(id + "   =>   " + taskID);
+      await expect(link.connect(customer).payForTask("Gadget", { value: ethers.parseEther("1") }))
+        .to.emit(link, "TaskPaid")
+        .withArgs(customer.address, vendor.address, ethers.parseEther("0.1"), "Gadget", taskID);
+    });
+
+    it("Should fail if the task does not exist", async function () {
+      const fakeTaskName = "ethers.encodeBytes32String";
       await expect(
         link
-          .connect(buyer)
-          .buyProduct(fakeProductName, { value: ethers.parseEther("1") })
-          .to.be.revertedWith("Product does not exist"),
+          .connect(customer)
+          .payForTask(fakeTaskName, { value: ethers.parseEther("1") })
+          .to.be.revertedWith("Task does not exist"),
       );
     });
 
     it("Should allow owner to withdraw balance", async function () {
-      buyer.sendTransaction({
+      customer.sendTransaction({
         to: link.getAddress(),
         value: ethers.parseEther("1.0"),
       });
@@ -85,21 +94,21 @@ describe("Link Contract", function () {
     });
 
     it("Should fail if non-owner tries to withdraw", async function () {
-      await expect(link.connect(buyer).withdraw()).to.be.revertedWith("You cannot do this!");
+      await expect(link.connect(customer).withdraw()).to.be.revertedWith("You cannot do this!");
     });
   });
 
   describe("Arbitration", function () {
-    it("Should lodge a complaint about a bought product", async function () {
-      expect(await link.connect(buyer).lodgeComplaint("Gadget", "Not the expected specification"))
+    it("Should lodge a complaint about a bought task", async function () {
+      expect(await link.connect(customer).lodgeComplaint("Gadget", "Not the expected specification"))
         .to.emit(link, "ComplaintLodged")
-        .withArgs(buyer.address, "Gadget", "Not the expected specification");
+        .withArgs(customer.address, "Gadget", "Not the expected specification");
     });
 
-    it("Should resolve the conflict without refunding buyer", async function () {
-      expect(await link.connect(arbitrator).resolveComplaint(buyer, "Not a problem"))
+    it("Should resolve the conflict without refunding customer", async function () {
+      expect(await link.connect(arbitrator).resolveComplaint(customer, "Not a problem"))
         .to.emit(link, "ComplaintLodged")
-        .withArgs(buyer.address, arbitrator.address, "Gadget", "Not a problem");
+        .withArgs(customer.address, arbitrator.address, "Gadget", "Not a problem");
     });
   });
 });

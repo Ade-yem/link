@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     LinkContract: {
-      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
       abi: [
         {
           inputs: [
@@ -26,7 +26,7 @@ const deployedContracts = {
             {
               indexed: false,
               internalType: "address",
-              name: "buyer",
+              name: "customer",
               type: "address",
             },
             {
@@ -107,7 +107,20 @@ const deployedContracts = {
             {
               indexed: false,
               internalType: "address",
-              name: "seller",
+              name: "vendor",
+              type: "address",
+            },
+          ],
+          name: "CustomerRegistered",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "address",
+              name: "vendor",
               type: "address",
             },
             {
@@ -129,7 +142,7 @@ const deployedContracts = {
               type: "uint256",
             },
           ],
-          name: "ProductAdded",
+          name: "TaskAdded",
           type: "event",
         },
         {
@@ -138,13 +151,13 @@ const deployedContracts = {
             {
               indexed: false,
               internalType: "address",
-              name: "buyer",
+              name: "customer",
               type: "address",
             },
             {
               indexed: false,
               internalType: "address",
-              name: "seller",
+              name: "vendor",
               type: "address",
             },
             {
@@ -166,7 +179,7 @@ const deployedContracts = {
               type: "bytes32",
             },
           ],
-          name: "ProductBought",
+          name: "TaskPaid",
           type: "event",
         },
         {
@@ -175,7 +188,7 @@ const deployedContracts = {
             {
               indexed: false,
               internalType: "address",
-              name: "seller",
+              name: "vendor",
               type: "address",
             },
             {
@@ -185,7 +198,20 @@ const deployedContracts = {
               type: "uint256",
             },
           ],
-          name: "SellerPaid",
+          name: "VendorPaid",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "address",
+              name: "vendor",
+              type: "address",
+            },
+          ],
+          name: "VendorRegistered",
           type: "event",
         },
         {
@@ -208,6 +234,32 @@ const deployedContracts = {
           type: "event",
         },
         {
+          inputs: [
+            {
+              internalType: "string",
+              name: "ipfsDetails",
+              type: "string",
+            },
+          ],
+          name: "RegisterCustomer",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "ipfsDetails",
+              type: "string",
+            },
+          ],
+          name: "RegisterVendor",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [],
           name: "addArbitrator",
           outputs: [],
@@ -223,7 +275,7 @@ const deployedContracts = {
             },
             {
               internalType: "string",
-              name: "features",
+              name: "description",
               type: "string",
             },
             {
@@ -233,95 +285,13 @@ const deployedContracts = {
             },
             {
               internalType: "address",
-              name: "seller",
+              name: "vendor",
               type: "address",
             },
           ],
-          name: "addProduct",
-          outputs: [
-            {
-              internalType: "bytes32",
-              name: "",
-              type: "bytes32",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-          ],
-          name: "boughtProduct",
-          outputs: [
-            {
-              internalType: "bytes32",
-              name: "id",
-              type: "bytes32",
-            },
-            {
-              internalType: "string",
-              name: "name",
-              type: "string",
-            },
-            {
-              internalType: "string",
-              name: "features",
-              type: "string",
-            },
-            {
-              internalType: "uint256",
-              name: "price",
-              type: "uint256",
-            },
-            {
-              internalType: "address",
-              name: "seller",
-              type: "address",
-            },
-            {
-              internalType: "bool",
-              name: "bought",
-              type: "bool",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "string",
-              name: "name",
-              type: "string",
-            },
-          ],
-          name: "buyProduct",
+          name: "addTask",
           outputs: [],
-          stateMutability: "payable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-          ],
-          name: "buyers",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
+          stateMutability: "nonpayable",
           type: "function",
         },
         {
@@ -338,19 +308,6 @@ const deployedContracts = {
           type: "function",
         },
         {
-          inputs: [],
-          name: "commission_total",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
           inputs: [
             {
               internalType: "address",
@@ -358,36 +315,11 @@ const deployedContracts = {
               type: "address",
             },
           ],
-          name: "complaints",
+          name: "customer_C",
           outputs: [
             {
-              internalType: "address",
-              name: "lodger",
-              type: "address",
-            },
-            {
-              internalType: "string",
-              name: "productName",
-              type: "string",
-            },
-            {
-              internalType: "string",
-              name: "complaint",
-              type: "string",
-            },
-            {
-              internalType: "string",
-              name: "judgement",
-              type: "string",
-            },
-            {
-              internalType: "uint256",
-              name: "time",
-              type: "uint256",
-            },
-            {
               internalType: "bool",
-              name: "resolved",
+              name: "",
               type: "bool",
             },
           ],
@@ -395,27 +327,109 @@ const deployedContracts = {
           type: "function",
         },
         {
-          inputs: [
-            {
-              internalType: "string",
-              name: "str1",
-              type: "string",
-            },
-            {
-              internalType: "address",
-              name: "str2",
-              type: "address",
-            },
-          ],
-          name: "generateID",
+          inputs: [],
+          name: "getAllTasks",
           outputs: [
             {
-              internalType: "bytes32",
+              components: [
+                {
+                  internalType: "bytes32",
+                  name: "id",
+                  type: "bytes32",
+                },
+                {
+                  internalType: "string",
+                  name: "name",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "description",
+                  type: "string",
+                },
+                {
+                  internalType: "uint256",
+                  name: "price",
+                  type: "uint256",
+                },
+                {
+                  internalType: "address",
+                  name: "vendor",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "customer",
+                  type: "address",
+                },
+                {
+                  internalType: "bool",
+                  name: "completed",
+                  type: "bool",
+                },
+              ],
+              internalType: "struct LinkContract.Task[]",
               name: "",
+              type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "id",
               type: "bytes32",
             },
           ],
-          stateMutability: "pure",
+          name: "getTask",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "bytes32",
+                  name: "id",
+                  type: "bytes32",
+                },
+                {
+                  internalType: "string",
+                  name: "name",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "description",
+                  type: "string",
+                },
+                {
+                  internalType: "uint256",
+                  name: "price",
+                  type: "uint256",
+                },
+                {
+                  internalType: "address",
+                  name: "vendor",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "customer",
+                  type: "address",
+                },
+                {
+                  internalType: "bool",
+                  name: "completed",
+                  type: "bool",
+                },
+              ],
+              internalType: "struct LinkContract.Task",
+              name: "",
+              type: "tuple",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -450,6 +464,19 @@ const deployedContracts = {
           type: "function",
         },
         {
+          inputs: [
+            {
+              internalType: "string",
+              name: "name",
+              type: "string",
+            },
+          ],
+          name: "payForTask",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
           inputs: [],
           name: "paySeller",
           outputs: [],
@@ -459,115 +486,8 @@ const deployedContracts = {
         {
           inputs: [
             {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          name: "productList",
-          outputs: [
-            {
-              internalType: "bytes32",
-              name: "id",
-              type: "bytes32",
-            },
-            {
-              internalType: "string",
-              name: "name",
-              type: "string",
-            },
-            {
-              internalType: "string",
-              name: "features",
-              type: "string",
-            },
-            {
-              internalType: "uint256",
-              name: "price",
-              type: "uint256",
-            },
-            {
               internalType: "address",
-              name: "seller",
-              type: "address",
-            },
-            {
-              internalType: "bool",
-              name: "bought",
-              type: "bool",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "string",
-              name: "",
-              type: "string",
-            },
-          ],
-          name: "productNames",
-          outputs: [
-            {
-              internalType: "bytes32",
-              name: "",
-              type: "bytes32",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "bytes32",
-              name: "",
-              type: "bytes32",
-            },
-          ],
-          name: "products",
-          outputs: [
-            {
-              internalType: "bytes32",
-              name: "id",
-              type: "bytes32",
-            },
-            {
-              internalType: "string",
-              name: "name",
-              type: "string",
-            },
-            {
-              internalType: "string",
-              name: "features",
-              type: "string",
-            },
-            {
-              internalType: "uint256",
-              name: "price",
-              type: "uint256",
-            },
-            {
-              internalType: "address",
-              name: "seller",
-              type: "address",
-            },
-            {
-              internalType: "bool",
-              name: "bought",
-              type: "bool",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "buyer",
+              name: "customer",
               type: "address",
             },
             {
@@ -585,7 +505,7 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "address",
-              name: "buyer",
+              name: "customer",
               type: "address",
             },
             {
@@ -602,17 +522,79 @@ const deployedContracts = {
         {
           inputs: [
             {
+              internalType: "uint256",
+              name: "_rate",
+              type: "uint256",
+            },
+          ],
+          name: "setCommissionRate",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "taskList",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "id",
+              type: "bytes32",
+            },
+            {
+              internalType: "string",
+              name: "name",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "description",
+              type: "string",
+            },
+            {
+              internalType: "uint256",
+              name: "price",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "vendor",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "customer",
+              type: "address",
+            },
+            {
+              internalType: "bool",
+              name: "completed",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
               internalType: "address",
               name: "",
               type: "address",
             },
           ],
-          name: "sellers",
+          name: "vendor_C",
           outputs: [
             {
-              internalType: "uint256",
+              internalType: "bool",
               name: "",
-              type: "uint256",
+              type: "bool",
             },
           ],
           stateMutability: "view",
