@@ -80,6 +80,18 @@ contract LinkContract {
         }
         _;
     }
+    modifier onlyCustomer {
+        if (!customer_C[msg.sender]) {
+            revert("You are not a customer!");
+        }
+        _;
+    }
+    modifier verifyBeforeRegistration() {
+        if (vendor_C[msg.sender] || customer_C[msg.sender]) {
+            revert("You are already registered");
+        }
+        _;
+    }
 
     /**
      * adds an arbitrator
@@ -118,16 +130,16 @@ contract LinkContract {
     function withdrawCommission() public onlyOwner {
         payable(owner).transfer(commission_total);
         emit Withdrawal(commission_total, block.timestamp);
-    }
+    }    
 
-    function RegisterVendor(string memory ipfsDetails) public {
+    function RegisterVendor(string memory ipfsDetails) public verifyBeforeRegistration {
         Vendor memory newV = Vendor(ipfsDetails, msg.sender, 0, false);
         vendors[msg.sender] = newV;
         vendor_C[msg.sender] = true;
         emit VendorRegistered(msg.sender);
     }
 
-    function RegisterCustomer(string memory ipfsDetails) public {
+    function RegisterCustomer(string memory ipfsDetails) public verifyBeforeRegistration {
         Customer memory newC = Customer(ipfsDetails, msg.sender);
         customers[msg.sender] = newC;
         customer_C[msg.sender] = true;
@@ -141,7 +153,10 @@ contract LinkContract {
      * @param price price of the product
      * @param vendor vendor's address
      */
-    function addTask(string memory name, string memory description, uint256 price, address vendor) public {
+    function addTask(string memory name, string memory description, uint256 price, address vendor) public onlyCustomer {
+        if (vendor_C[vendor] != true) {
+            revert("The vendor address is not valid");
+        }
         bytes32 id = generateID(name, vendor);
         Task memory item = Task(id, name, description, price, vendor, msg.sender, false);
         tasks[id] = item;
