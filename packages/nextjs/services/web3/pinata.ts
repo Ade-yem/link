@@ -24,3 +24,12 @@ export const addFileToIpfs = async (file: File) => {
     console.log(error);
   }
 };
+
+export async function getDetailsFromIPFS(hash: string) {
+  try {
+    const res = fetch(`${hash}`);
+    return (await res).json();
+  } catch (error) {
+    console.error(error);
+  }
+}

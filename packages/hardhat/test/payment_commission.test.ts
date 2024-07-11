@@ -5,8 +5,8 @@ import { LinkContract } from "../typechain-types";
 // const {BigNumb} = require("ethers")
 
 describe("Link Contract", function () {
-  let Link: any;
-  let link: any;
+  let Link;
+  let link: LinkContract;
   let owner: HardhatEthersSigner;
   let customer: HardhatEthersSigner;
   let vendor: HardhatEthersSigner;
@@ -19,12 +19,9 @@ describe("Link Contract", function () {
     [owner, customer, vendor, arbitrator, ...addrs] = await ethers.getSigners();
     link = (await Link.deploy(10)) as LinkContract; // Assuming 10% commission rate
     await link.waitForDeployment();
-    const transaction = {
-      to: link.getAddress(),
-      value: ethers.parseEther("1.0"),
-    };
-    customer.sendTransaction(transaction);
     await link.connect(arbitrator).addArbitrator();
+    await link.connect(vendor).RegisterVendor("vfgxhvjklkjcrxcygugu");
+    await link.connect(customer).RegisterCustomer("vfgxhvjklkjcrxcygugu");
   });
 
   describe("Deployment", function () {
@@ -37,26 +34,38 @@ describe("Link Contract", function () {
     });
   });
 
+  describe("Register", function () {
+    it("Should throw error when vendor trying to re register", async function () {
+      expect(await link.connect(vendor).RegisterVendor("vfgxhvjklkjcrxcygugu")).to.be.revertedWith(
+        "You are already registered",
+      );
+    });
+    it("Should throw error when customer trying to re register", async function () {
+      expect(await link.connect(customer).RegisterCustomer("vfgxhvjklkjcrxcygugu")).to.be.revertedWith(
+        "You are already registered",
+      );
+    });
+  });
+
   describe("Transactions", function () {
     it("Should emit TaskAdded event when a new task is added", async function () {
       const taskID = await link.generateID("Gadget", vendor.address);
-      await expect(link.connect(vendor).addTask("Gadget", "Features", ethers.parseEther("1"), vendor.address))
+      await expect(link.connect(customer).addTask("Gadget", "Features", ethers.parseEther("1"), vendor.address))
         .to.emit(link, "TaskAdded")
         .withArgs(vendor.address, "Gadget", taskID, ethers.parseEther("1"));
     });
 
     it("Should get all tasks created", async function () {
-      await link.connect(vendor).addTask("Gadget", "Features", ethers.parseEther("1"), vendor.address);
-      await link.connect(vendor).addTask("Gadgetss", "Featuresez", ethers.parseEther("1"), vendor.address);
-      await link.connect(vendor).addTask("Gadgets", "Features", ethers.parseEther("1"), vendor.address);
-      const req = await link.connect(vendor).getAllTasks();
+      await link.connect(customer).addTask("Gadget", "Features", ethers.parseEther("1"), vendor.address);
+      await link.connect(customer).addTask("Gadgetss", "Featuresez", ethers.parseEther("1"), vendor.address);
+      await link.connect(customer).addTask("Gadgets", "Features", ethers.parseEther("1"), vendor.address);
+      const req = await link.connect(customer).getAllTasks();
       expect(req.length).to.equal(3);
     });
 
     it("Should allow a customer to purchase a task and emit TaskPaid event", async function () {
       const taskID = await link.generateID("Gadget", vendor.address);
-      const id = await link.connect(vendor).addTask("Gadget", "Features", ethers.parseEther("1"), vendor.address);
-      console.log(id + "   =>   " + taskID);
+      await link.connect(customer).addTask("Gadget", "Features", ethers.parseEther("1"), vendor.address);
       await expect(link.connect(customer).payForTask("Gadget", { value: ethers.parseEther("1") }))
         .to.emit(link, "TaskPaid")
         .withArgs(customer.address, vendor.address, ethers.parseEther("0.1"), "Gadget", taskID);
@@ -65,11 +74,17 @@ describe("Link Contract", function () {
     it("Should fail if the task does not exist", async function () {
       const fakeTaskName = "ethers.encodeBytes32String";
       await expect(
-        link
-          .connect(customer)
-          .payForTask(fakeTaskName, { value: ethers.parseEther("1") })
-          .to.be.revertedWith("Task does not exist"),
-      );
+        link.connect(customer).payForTask(fakeTaskName, { value: ethers.parseEther("1") }),
+      ).to.be.revertedWith("Task does not exist");
+    });
+
+    it("Should allow a vendor to remove his money", async function () {
+      const finMoney = ethers.parseEther("1") - ethers.parseEther("1") / BigInt(10);
+      await link.connect(customer).addTask("Gadget", "Features", ethers.parseEther("1"), vendor.address);
+      await link.connect(customer).payForTask("Gadget", { value: ethers.parseEther("1") });
+      await expect(await link.connect(vendor).paySeller())
+        .to.emit(link, "VendorPaid")
+        .withArgs(vendor.address, finMoney);
     });
 
     it("Should allow owner to withdraw balance", async function () {
@@ -78,19 +93,18 @@ describe("Link Contract", function () {
         value: ethers.parseEther("1.0"),
       });
       const ownerBalanceBefore = await ethers.provider.getBalance(owner.getAddress());
-      // const contract_balance = await ethers.provider.getBalance(link.getAddress());
+      const contract_balance = await ethers.provider.getBalance(link.getAddress());
 
       // Capture the transaction details to calculate gas cost
-      // const tx =
-      await link.connect(owner).withdraw();
-      // const receipt = await tx.wait(); // Wait for the transaction to be mined
-      // const gasUsed = ethers.toBigInt(receipt.gasUsed) * ethers.toBigInt(receipt.effectiveGasPrice);
+      const tx = await link.connect(owner).withdraw();
+      const receipt = await tx.wait(); // Wait for the transaction to be mined
+      const gasUsed = ethers.toBigInt(receipt.gasUsed) * ethers.toBigInt(receipt?.effectiveGasPrice);
 
       const ownerBalanceAfter = await ethers.provider.getBalance(owner.address);
 
       // The owner's balance after should be the initial balance plus the contract balance minus the gas cost
-      expect(ownerBalanceAfter).to.equal(ownerBalanceBefore);
-      // expect(ownerBalanceAfter).to.equal(ownerBalanceBefore.add(contract_balance).sub(gasUsed));
+      // expect(ownerBalanceAfter).to.equal(ownerBalanceBefore);
+      expect(ownerBalanceAfter).to.equal(ownerBalanceBefore + (contract_balance - gasUsed));
     });
 
     it("Should fail if non-owner tries to withdraw", async function () {

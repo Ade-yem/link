@@ -10,6 +10,7 @@ import {
   useScaffoldWatchContractEvent,
   useScaffoldWriteContract,
 } from "~~/hooks/scaffold-eth";
+import User from "~~/lib/chat";
 import { addFileToIpfs } from "~~/services/web3/pinata";
 
 const RegisterPage: React.FC = () => {
@@ -151,6 +152,7 @@ const RegisterPage: React.FC = () => {
       formData.append("picture", picture);
     }
     if (role === "vendor") {
+      formData.append("service", service);
       formData.append("file1", file1);
       formData.append("file2", file2);
       formData.append("file3", file3);
@@ -164,6 +166,8 @@ const RegisterPage: React.FC = () => {
         // @ts-expect-error
         onBlockConfirmation: () => toast.success(`Successfully registered, welcome ${name}`),
       });
+      const newUser = new User({ address: connectedAddress, chats: [], preview: [] });
+      await newUser.save();
       setLoading(false);
       router.replace("/profile");
     } catch (error) {

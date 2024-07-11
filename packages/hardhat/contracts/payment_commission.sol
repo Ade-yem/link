@@ -26,13 +26,13 @@ contract LinkContract {
     }
     struct Vendor {
         string ipfsDetails;
-        address vendor;
+        address account;
         uint256 totalMoney;
         bool flagged;
     }
     struct Customer {
         string ipfsDetails;
-        address customer;
+        address account;
     }
     struct PendingTransferToVendor {
         address vendor;
@@ -40,8 +40,8 @@ contract LinkContract {
         uint256 amount;
     }
     address public owner;
-    mapping (address => Customer) internal customers;
-    mapping (address => Vendor) internal vendors;
+    mapping (address => Customer) public customers;
+    mapping (address => Vendor) public vendors;
     mapping (bytes32 => Task) internal tasks;
     mapping (string => bytes32) internal taskNames;
     mapping (address => Complaint) internal complaints;
@@ -52,6 +52,7 @@ contract LinkContract {
     uint256 internal outstanding;
     uint256 private commission_total = 0;
     Task[] public taskList;
+    address[] public allVendors;
     event Withdrawal(uint amount, uint when);
     event TaskAdded(address vendor, string name, bytes32 id, uint256 price);
     event TaskPaid(address customer, address vendor, uint256 commission, string productName, bytes32 id);
@@ -60,12 +61,14 @@ contract LinkContract {
     event ComplaintResolved(address lodger, address arbitrator, string product, string judgement);
     event BuyerRefunded(address customer, string productName, string complaint);
     event VendorRegistered(address vendor);
+    event VendorFlagged(address vendor, uint256 time);
+    event VendorUnflagged(address vendor, uint256 time);
     event CustomerRegistered(address vendor);
 
 
-    constructor(uint256 rate) {
+    constructor() {
         owner = msg.sender;
-        commission_rate = rate;
+        commission_rate = 10;
     }
 
     modifier onlyOwner {
@@ -80,8 +83,15 @@ contract LinkContract {
         }
         _;
     }
+    
     modifier onlyCustomer {
         if (!customer_C[msg.sender]) {
+            revert("You are not a customer!");
+        }
+        _;
+    }
+    modifier onlyVendor {
+        if (!vendor_C[msg.sender]) {
             revert("You are not a customer!");
         }
         _;
@@ -105,7 +115,7 @@ contract LinkContract {
      * @param str1 first string
      * @param str2 second string
      */
-    function generateID(string memory str1, address str2) internal pure returns (bytes32) {
+    function generateID(string memory str1, address str2) public pure returns (bytes32) {
         return(keccak256(abi.encodePacked(str1, str2)));
     }
 
@@ -136,6 +146,7 @@ contract LinkContract {
         Vendor memory newV = Vendor(ipfsDetails, msg.sender, 0, false);
         vendors[msg.sender] = newV;
         vendor_C[msg.sender] = true;
+        allVendors.push(msg.sender);
         emit VendorRegistered(msg.sender);
     }
 
@@ -167,6 +178,10 @@ contract LinkContract {
 
     function getAllTasks() public view returns (Task[] memory) {
         return taskList;
+    }
+
+    function getAllVendors() public view returns (address[] memory) {
+        return allVendors;
     }
 
     function getTask(bytes32 id) public view returns(Task memory) {
@@ -235,10 +250,12 @@ contract LinkContract {
      * @param complaint complaint
      * emits [ComplaintLodged] event
      */
-    function lodgeComplaint(string memory product_name, string memory complaint) public {
+    function lodgeComplaint(string memory product_name, bytes32 id, string memory complaint) public {
         Complaint memory complain = Complaint(msg.sender, product_name, complaint, "", block.timestamp, false);
         complaints[msg.sender] = complain;
+        vendors[tasks[id].vendor].flagged = true;
         emit ComplaintLodged(msg.sender, product_name, complaint);
+        emit VendorFlagged(tasks[id].vendor, block.timestamp);
     }
 
     /**
@@ -249,7 +266,10 @@ contract LinkContract {
     function resolveComplaint(address customer, string memory judgement) public onlyArbitrator {
         complaints[customer].judgement = judgement;
         complaints[customer].resolved = true;
+        bytes32 _id = taskNames[complaints[customer].productName];
+        vendors[tasks[_id].vendor].flagged = false;
         emit ComplaintResolved(customer, msg.sender, complaints[customer].productName, judgement);
+        emit VendorUnflagged(tasks[_id].vendor, block.timestamp);
     }
 
     function returnBuyerFunds(address customer, string memory judgement) public onlyArbitrator {
@@ -263,6 +283,7 @@ contract LinkContract {
         vendors[tasks[taskNames[complain.productName]].vendor].totalMoney -= amt - commission;
         commission_total -= commission;
         tasks[taskNames[complain.productName]].completed = false;
+        vendors[tasks[taskNames[complain.productName]].vendor].flagged = false;
         emit BuyerRefunded(customer, complain.productName, complain.complaint);
     }
 
