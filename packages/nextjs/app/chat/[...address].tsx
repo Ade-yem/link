@@ -7,6 +7,7 @@ import { useAccount } from "wagmi";
 import { PaperAirplaneIcon, PaperClipIcon } from "@heroicons/react/24/outline";
 import Loading from "~~/components/Loading";
 import BackButton from "~~/components/backButton";
+import { createPreview, getRoomFromPreview } from "~~/lib/db";
 import { addFileToIpfs } from "~~/services/web3/pinata";
 import { ChatMessage } from "~~/types/utils";
 
@@ -15,19 +16,39 @@ export default function Chat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
-  const receiver = router.query.address as string;
+  const query = router.query.address;
+  const receiver = query?.[0];
+  const [room, setRoom] = useState<string | undefined>(query?.[1] ?? undefined);
   const socket = io();
 
   useEffect(() => {
     setLoading(true);
+    if (!room) {
+      async function getRoom() {
+        const res = await getRoomFromPreview(address as string, receiver as string);
+        if (!res) {
+          createPreview(address as string, receiver as string);
+          const newRoom = await getRoomFromPreview(address as string, receiver as string);
+          socket.emit("join_room", { sender: address, receiver: receiver, room: newRoom });
+          setRoom(newRoom);
+          return;
+        }
+        socket.emit("join_room", { sender: address, receiver: receiver, room: res });
+        setRoom(res);
+      }
+      getRoom();
+    }
     socket.on("message", data => {
       setMessages(prev => [...prev, data]);
     });
+    socket.on("received_message", data => {
+      setMessages(prev => [...prev, data]);
+    });
     setLoading(false);
-  }, [socket, receiver]);
+  }, [socket, receiver, address, room]);
 
   const submit = async (data: ChatMessage) => {
-    socket.emit("send_message", data);
+    socket.emit("send_message", { data, room });
   };
 
   return (
@@ -37,7 +58,7 @@ export default function Chat() {
       {messages.map((message, index) => (
         <Message key={index} message={message} owner={address as string} />
       ))}
-      <Input sender={address as string} receiver={receiver} submit={submit} />
+      <Input sender={address as string} receiver={receiver as string} submit={submit} />
     </div>
   );
 }

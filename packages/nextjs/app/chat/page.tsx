@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { randomUUID } from "crypto";
 import io from "socket.io-client";
 import { useAccount } from "wagmi";
 import BackButton from "~~/components/backButton";
@@ -18,7 +17,6 @@ export default function ChatList() {
     const fetchChats = async () => {
       try {
         const chats = await getPreview(address as string);
-        // @ts-expect-error
         if (chats) setChats(chats);
       } catch (e) {
         console.error(e);
@@ -49,13 +47,12 @@ function ChatPreview({ preview }: { preview: Preview }) {
         socket.emit("join_room", {
           sender: address,
           receiver: preview.receiver,
-          room: randomUUID(),
+          room: preview.room,
         });
-        router.push(`/chat/${preview.receiver}`);
+        router.push(`/chat/${preview.receiver}/${preview.room}`);
       }}
       className="flex flex-col border border-neutral gap-2 p-3"
     >
-      <p className="font-bold text-md">{preview.name}</p>
       {/* @ts-ignore */}
       <Address address={preview.receiver} />
     </div>

@@ -38,7 +38,6 @@ export interface Profile {
 
 export interface Preview {
   id?: ObjectId;
-  name: string;
   receiver: string;
   sender: string;
   room: string;

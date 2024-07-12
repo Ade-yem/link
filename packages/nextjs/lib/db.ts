@@ -15,6 +15,35 @@ export const getPreview = async (sender: string) => {
   }
 };
 
+export const getRoomFromPreview = async (address: string, receiver: string) => {
+  try {
+    const user = await User.findOne({ address: address });
+    const previews = user?.preview;
+    if (previews) {
+      const preview = previews.find((preview: any) => preview.receiver === receiver || preview.sender === receiver);
+      return preview ? preview?.room : undefined;
+    } else {
+      throw new Error("User not found");
+    }
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+export const createPreview = async (address: string, receiver: string) => {
+  try {
+    const user = await User.findOne({ address: address });
+    const preview = { sender: address, receiver: receiver };
+    user?.preview.push(preview);
+    user?.save();
+    const user1 = await User.findOne({ address: receiver });
+    const preview1 = { sender: receiver, receiver: address };
+    user1?.preview.push(preview1);
+    user1?.save();
+  } catch (e) {
+    console.error(e);
+  }
+};
 export const getMessages = async (address: string, receiver: string) => {
   try {
     const user = await User.findOne({ address: address });
@@ -57,7 +86,10 @@ export const addPreviewTo = async (address: string, preview: Preview) => {
     const user1 = await User.findOne({ address: preview.receiver });
     if (user && user1) {
       user?.preview.push(preview);
-      user1?.preview.push(preview);
+      const preview1 = preview;
+      preview1.receiver = address;
+      preview1.sender = preview.receiver;
+      user1?.preview.push(preview1);
       user?.save();
       user1?.save();
     } else {

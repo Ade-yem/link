@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import mongoose, { Schema } from "mongoose";
 
 const chatSchema = new Schema({
@@ -29,6 +30,10 @@ const previewSchema = new Schema({
   sender: {
     type: String,
     required: true,
+  },
+  room: {
+    type: String,
+    default: randomUUID(),
   },
   updatedAt: {
     type: Date,
