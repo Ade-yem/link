@@ -4,9 +4,10 @@ import React, { useCallback, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAccount } from "wagmi";
 import { Bars3Icon, BugAntIcon } from "@heroicons/react/24/outline";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
-import { useOutsideClick } from "~~/hooks/scaffold-eth";
+import { useOutsideClick, useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 
 type HeaderMenuLink = {
   label: string;
@@ -24,14 +25,23 @@ export const menuLinks: HeaderMenuLink[] = [
     href: "/debug",
     icon: <BugAntIcon className="h-4 w-4" />,
   },
+  {
+    label: "Services",
+    href: "/service",
+  },
 ];
 
 export const HeaderMenuLinks = () => {
   const pathname = usePathname();
-
+  const filteredMenuLinks = menuLinks.filter(({ label }) => {
+    if (process.env.NEXT_PUBLIC_NODE_ENV !== "dev" && label === "Debug Contract") {
+      return false;
+    }
+    return true;
+  });
   return (
     <>
-      {menuLinks.map(({ label, href, icon }) => {
+      {filteredMenuLinks.map(({ label, href, icon }) => {
         const isActive = pathname === href;
         return (
           <li key={href}>
@@ -62,6 +72,17 @@ export const Header = () => {
     burgerMenuRef,
     useCallback(() => setIsDrawerOpen(false), []),
   );
+  const { address } = useAccount();
+  const { data: isCustomer } = useScaffoldReadContract({
+    contractName: "LinkContract",
+    functionName: "customer_C",
+    args: [address],
+  });
+  const { data: isVendor } = useScaffoldReadContract({
+    contractName: "LinkContract",
+    functionName: "vendor_C",
+    args: [address],
+  });
 
   return (
     <div className="sticky lg:static top-0 navbar bg-base-100 min-h-0 flex-shrink-0 justify-between z-20 shadow-md shadow-secondary px-0 sm:px-2">
@@ -90,11 +111,10 @@ export const Header = () => {
         </div>
         <Link href="/" passHref className="hidden lg:flex items-center gap-2 ml-4 mr-6 shrink-0">
           <div className="flex relative w-10 h-10">
-            <Image alt="SE2 logo" className="cursor-pointer" fill src="/logo.svg" />
+            <Image alt="Link logo" className="cursor-pointer" fill src="/favicon.ico" />
           </div>
           <div className="flex flex-col">
-            <span className="font-bold leading-tight">Scaffold-ETH</span>
-            <span className="text-xs">Ethereum dev stack</span>
+            <span className="font-bold font-mono text-xl">Link</span>
           </div>
         </Link>
         <ul className="hidden lg:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">
@@ -102,6 +122,21 @@ export const Header = () => {
         </ul>
       </div>
       <div className="navbar-end flex-grow mr-4">
+        {!isVendor || !isCustomer ? (
+          <Link
+            href={"/register"}
+            className="bg-info font-semibold mr-4 dark:bg-secondary shadow-md hover:bg-secondary hover:shadow-md focus:!bg-secondary active:!text-neutral py-1.5 px-8 text-sm rounded-full gap-2 grid grid-flow-col"
+          >
+            Join
+          </Link>
+        ) : (
+          <Link
+            href={"/profile"}
+            className="bg-info font-semibold mr-4 dark:bg-secondary shadow-md hover:bg-secondary hover:shadow-md focus:!bg-secondary active:!text-neutral py-1.5 px-8 text-sm rounded-full gap-2 grid grid-flow-col"
+          >
+            Profile
+          </Link>
+        )}
         <RainbowKitCustomConnectButton />
         <FaucetButton />
       </div>

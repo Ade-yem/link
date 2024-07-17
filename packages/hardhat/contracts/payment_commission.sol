@@ -7,13 +7,14 @@ pragma solidity ^0.8.0;
  * @notice 
  */
 contract LinkContract {
-    struct Product {
+    struct Task {
         bytes32 id;
         string name;
-        string features;
+        string description;
         uint256 price;
-        address seller;
-        bool bought;
+        address vendor;
+        address customer;
+        bool completed;
     }
     struct Complaint {
         address lodger;
@@ -23,29 +24,51 @@ contract LinkContract {
         uint256 time;
         bool resolved;
     }
+    struct Vendor {
+        string ipfsDetails;
+        address account;
+        uint256 totalMoney;
+        bool flagged;
+    }
+    struct Customer {
+        string ipfsDetails;
+        address account;
+    }
+    struct PendingTransferToVendor {
+        address vendor;
+        address customer;
+        uint256 amount;
+    }
     address public owner;
-    mapping (address => uint256) public buyers;
-    mapping (address => uint256) public sellers;
-    mapping (bytes32 => Product) public products;
-    mapping (string => bytes32) public productNames;
-    mapping (address => Product) public boughtProduct; // maps buyer to the bought product
-    mapping (address => Complaint) public complaints;
-    mapping (address => bool) arbitrator;
+    mapping (address => Customer) public customers;
+    mapping (address => Vendor) public vendors;
+    mapping (bytes32 => Task) internal tasks;
+    mapping (string => bytes32) internal taskNames;
+    mapping (address => Complaint) internal complaints;
+    mapping (address => bool) internal arbitrator;
+    mapping (address => bool) public vendor_C;
+    mapping (address => bool) public customer_C;
     uint256 public commission_rate;
-    uint256 public commission_total = 0;
-    Product[] public productList;
+    uint256 internal outstanding;
+    uint256 private commission_total = 0;
+    Task[] public taskList;
+    address[] public allVendors;
     event Withdrawal(uint amount, uint when);
-    event ProductAdded(address seller, string name, bytes32 id, uint256 price);
-    event ProductBought(address buyer, address seller, uint256 commission, string productName, bytes32 id);
-    event SellerPaid(address seller, uint256 amount);
+    event TaskAdded(address vendor, string name, bytes32 id, uint256 price);
+    event TaskPaid(address customer, address vendor, uint256 commission, string productName, bytes32 id);
+    event VendorPaid(address vendor, uint256 amount);
     event ComplaintLodged(address lodger, string product, string complaint);
     event ComplaintResolved(address lodger, address arbitrator, string product, string judgement);
-    event BuyerRefunded(address buyer, string productName, string complaint);
+    event BuyerRefunded(address customer, string productName, string complaint);
+    event VendorRegistered(address vendor);
+    event VendorFlagged(address vendor, uint256 time);
+    event VendorUnflagged(address vendor, uint256 time);
+    event CustomerRegistered(address vendor);
 
 
-    constructor(uint256 rate) {
+    constructor() {
         owner = msg.sender;
-        commission_rate = rate;
+        commission_rate = 10;
     }
 
     modifier onlyOwner {
@@ -60,10 +83,24 @@ contract LinkContract {
         }
         _;
     }
-
-    function withdrawCommission() public onlyOwner {
-        payable(owner).transfer(commission_total);
-        emit Withdrawal(commission_total, block.timestamp);
+    
+    modifier onlyCustomer {
+        if (!customer_C[msg.sender]) {
+            revert("You are not a customer!");
+        }
+        _;
+    }
+    modifier onlyVendor {
+        if (!vendor_C[msg.sender]) {
+            revert("You are not a customer!");
+        }
+        _;
+    }
+    modifier verifyBeforeRegistration() {
+        if (vendor_C[msg.sender] || customer_C[msg.sender]) {
+            revert("You are already registered");
+        }
+        _;
     }
 
     /**
@@ -74,22 +111,6 @@ contract LinkContract {
     }
 
     /**
-     * Adds a product to the contract
-     * @param name name of product
-     * @param features features of the product
-     * @param price price of the product
-     * @param seller seller's address
-     */
-    function addProduct(string memory name, string memory features, uint256 price, address seller) public returns(bytes32) {
-        bytes32 id = generateID(name, seller);
-        Product memory item = Product(id, name, features, price, seller, false);
-        products[id] = item;
-        productNames[name] = id;
-        productList.push(item);
-        emit ProductAdded(seller, name, id, price);
-        return id;
-    }
-    /**
      * creates a bytes32 array from two strings
      * @param str1 first string
      * @param str2 second string
@@ -98,38 +119,118 @@ contract LinkContract {
         return(keccak256(abi.encodePacked(str1, str2)));
     }
 
+    function setCommissionRate(uint256 _rate) public onlyOwner {
+        commission_rate = _rate;
+    }
+
     /**
      * Take commission on payment
      * @param amount price of product
-     * @param seller srller's address
+     * @param vendor vendor's address
      */
-    function takeCommission(uint256 amount, address seller) internal returns(uint256) {
+    function takeCommission(uint256 amount, address vendor) internal returns(uint256) {
         uint256 commission = (amount * commission_rate) / 100;
-        sellers[seller] += amount - commission;
+        uint256 rem = amount - commission;
+        vendors[vendor].totalMoney += rem;
+        outstanding += rem;
         commission_total += commission;
         return (commission);
     }
 
+    function withdrawCommission() public onlyOwner {
+        payable(owner).transfer(commission_total);
+        emit Withdrawal(commission_total, block.timestamp);
+    }    
+
+    function RegisterVendor(string memory ipfsDetails) public verifyBeforeRegistration {
+        Vendor memory newV = Vendor(ipfsDetails, msg.sender, 0, false);
+        vendors[msg.sender] = newV;
+        vendor_C[msg.sender] = true;
+        allVendors.push(msg.sender);
+        emit VendorRegistered(msg.sender);
+    }
+
+    function RegisterCustomer(string memory ipfsDetails) public verifyBeforeRegistration {
+        Customer memory newC = Customer(ipfsDetails, msg.sender);
+        customers[msg.sender] = newC;
+        customer_C[msg.sender] = true;
+        emit CustomerRegistered(msg.sender);
+    }
+
     /**
-     * Pay money for product
+     * @dev Adds a product to the contract
+     * @param name name of product
+     * @param description description of the product
+     * @param price price of the product
+     * @param vendor vendor's address
+     */
+    function addTask(string memory name, string memory description, uint256 price, address vendor) public onlyCustomer {
+        if (vendor_C[vendor] != true) {
+            revert("The vendor address is not valid");
+        }
+        bytes32 id = generateID(name, vendor);
+        Task memory item = Task(id, name, description, price, vendor, msg.sender, false);
+        tasks[id] = item;
+        taskNames[name] = id;
+        taskList.push(item);
+        emit TaskAdded(vendor, name, id, price);
+    }
+
+    function getAllTasks() public view returns (Task[] memory) {
+        return taskList;
+    }
+
+    function getAllVendors() public view returns (address[] memory) {
+        return allVendors;
+    }
+
+    function getTask(bytes32 id) public view returns(Task memory) {
+        if (id[0] == 0) {
+            revert("Task does not exist");
+        }
+        Task memory item = tasks[id];
+        if (item.vendor == address(0) || item.price == 0) {
+            revert ("Task does not exist");
+        }
+        return tasks[id];
+    }
+
+    /**
+     * Pay money for task
      * @param name name of the product
      */
-    function buyProduct(string memory name) public payable {
-        bytes32 _id = productNames[name];
+    function payForTask(string memory name) public payable {
+        bytes32 _id = taskNames[name];
         if (_id[0] == 0) {
-            revert("Product does not exist");
+            revert("Task does not exist");
         }
-        Product memory item = products[_id];
-        if (item.seller != address(0) && item.price == 0) {
-            revert ("Product does not exist");
+        Task memory item = tasks[_id];
+        if (item.vendor == address(0) || item.price == 0) {
+            revert ("Task does not exist");
         }
         if (msg.value < item.price) {
             revert("Insufficient funds");
         }
-        uint256 commission = takeCommission(msg.value, item.seller);
-        products[_id].bought = true;
-        boughtProduct[msg.sender] = products[_id];
-        emit ProductBought(msg.sender, item.seller, commission, item.name, _id);
+        uint256 commission = takeCommission(msg.value, item.vendor);
+        tasks[_id].completed = true;
+
+        emit TaskPaid(msg.sender, item.vendor, commission, item.name, _id);
+    }
+
+    /**
+     * Pay payable vendor
+     */
+    function paySeller() public {
+        if (vendors[msg.sender].totalMoney == 0) {
+            revert("You are not a vendor or we do not have your money");
+        }
+        if (vendors[msg.sender].flagged) {
+            revert("Someone lodged a complaint about you, await resolution!");
+        }
+        payable(msg.sender).transfer(vendors[msg.sender].totalMoney);
+        emit VendorPaid(msg.sender, vendors[msg.sender].totalMoney);
+        outstanding -= vendors[msg.sender].totalMoney;
+        vendors[msg.sender].totalMoney = 0;
     }
 
     /**
@@ -149,46 +250,42 @@ contract LinkContract {
      * @param complaint complaint
      * emits [ComplaintLodged] event
      */
-    function lodgeComplaint(string memory product_name, string memory complaint) public {
+    function lodgeComplaint(string memory product_name, bytes32 id, string memory complaint) public {
         Complaint memory complain = Complaint(msg.sender, product_name, complaint, "", block.timestamp, false);
         complaints[msg.sender] = complain;
+        vendors[tasks[id].vendor].flagged = true;
         emit ComplaintLodged(msg.sender, product_name, complaint);
+        emit VendorFlagged(tasks[id].vendor, block.timestamp);
     }
 
     /**
      * Complaint resolving
-     * @param buyer complainer
+     * @param customer complainer
      * @param judgement arbitrator's judgement
      */
-    function resolveComplaint(address buyer, string memory judgement) public onlyArbitrator {
-        complaints[buyer].judgement = judgement;
-        complaints[buyer].resolved = true;
-        emit ComplaintResolved(buyer, msg.sender, complaints[buyer].productName, judgement);
+    function resolveComplaint(address customer, string memory judgement) public onlyArbitrator {
+        complaints[customer].judgement = judgement;
+        complaints[customer].resolved = true;
+        bytes32 _id = taskNames[complaints[customer].productName];
+        vendors[tasks[_id].vendor].flagged = false;
+        emit ComplaintResolved(customer, msg.sender, complaints[customer].productName, judgement);
+        emit VendorUnflagged(tasks[_id].vendor, block.timestamp);
     }
 
-    function returnBuyerFunds(address buyer, string memory judgement) public onlyArbitrator {
-        Complaint memory complain = complaints[buyer];
+    function returnBuyerFunds(address customer, string memory judgement) public onlyArbitrator {
+        Complaint memory complain = complaints[customer];
         complain.judgement = judgement;
         complain.resolved = true;
-        complaints[buyer] = complain;
-        uint256 amt = products[productNames[complain.productName]].price;
-        payable(buyer).transfer(amt);
+        complaints[customer] = complain;
+        uint256 amt = tasks[taskNames[complain.productName]].price;
+        payable(customer).transfer(amt);
         uint256 commission = (amt * commission_rate) / 100;
-        sellers[products[productNames[complain.productName]].seller] -= amt - commission;
+        vendors[tasks[taskNames[complain.productName]].vendor].totalMoney -= amt - commission;
         commission_total -= commission;
-        products[productNames[complain.productName]].bought = false;
-        emit BuyerRefunded(buyer, complain.productName, complain.complaint);
+        tasks[taskNames[complain.productName]].completed = false;
+        vendors[tasks[taskNames[complain.productName]].vendor].flagged = false;
+        emit BuyerRefunded(customer, complain.productName, complain.complaint);
     }
 
-    /**
-     * Pay payable seller
-     */
-    function paySeller() public {
-        if (sellers[msg.sender] == 0) {
-            revert("You are not a seller or we do not have your money");
-        }
-        payable(msg.sender).transfer(sellers[msg.sender]);
-        emit SellerPaid(msg.sender, sellers[msg.sender]);
-        sellers[msg.sender] = 0;
-    }
+    
 }
