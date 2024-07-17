@@ -1,3 +1,7 @@
+import { json } from "@helia/json";
+import { createHelia } from "helia";
+import { CID } from "multiformats/cid";
+
 const ipfsJWT = process.env.NEXT_PUBLIC_JWT;
 export const addFileToIpfs = async (file: File) => {
   try {
@@ -25,11 +29,24 @@ export const addFileToIpfs = async (file: File) => {
   }
 };
 
+const helia = await createHelia();
+const J = json(helia);
 export async function getDetailsFromIPFS(hash: string) {
   try {
-    const res = fetch(`${hash}`);
-    return (await res).json();
+    const cid = CID.parse(hash);
+    const res = await J.get(cid);
+    return res;
   } catch (error) {
     console.error(error);
+  }
+}
+
+export async function pinJSONToIPFS(formData: any) {
+  try {
+    const res = J.add(formData);
+    console.log(res);
+    return res;
+  } catch (error) {
+    console.log(error);
   }
 }

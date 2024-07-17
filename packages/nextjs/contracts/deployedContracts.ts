@@ -1264,11 +1264,6 @@ const deployedContracts = {
               type: "string",
             },
             {
-              internalType: "bytes32",
-              name: "id",
-              type: "bytes32",
-            },
-            {
               internalType: "string",
               name: "complaint",
               type: "string",

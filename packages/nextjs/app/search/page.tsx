@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import VendorCard from "~~/components/VendorCard";
@@ -25,7 +27,7 @@ const SearchPage = () => {
       const res = data as unknown as Vendor[];
       res.forEach(async vendor => {
         try {
-          const details = await getDetailsFromIPFS(vendor.ipfsDetails);
+          const details: any = await getDetailsFromIPFS(vendor.ipfsDetails);
           if (details.service === query) {
             const det: Details = {
               name: "",

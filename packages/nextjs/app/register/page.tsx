@@ -10,8 +10,8 @@ import {
   useScaffoldWatchContractEvent,
   useScaffoldWriteContract,
 } from "~~/hooks/scaffold-eth";
-import User from "~~/lib/chat";
-import { addFileToIpfs } from "~~/services/web3/pinata";
+import { initializeUser } from "~~/lib/db";
+import { addFileToIpfs, pinJSONToIPFS } from "~~/services/web3/pinata";
 
 const RegisterPage: React.FC = () => {
   const [name, setName] = useState("");
@@ -31,7 +31,6 @@ const RegisterPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const { writeContractAsync } = useScaffoldWriteContract("LinkContract");
   const { address: connectedAddress } = useAccount();
-  const ipfsJWT = process.env.NEXT_PUBLIC_JWT;
   const IPFS_ENDPOINT = process.env.NEXT_PUBLIC_IPFS_ENDPOINT + "/ipfs";
   const router = useRouter();
   const handlePictureChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,30 +85,6 @@ const RegisterPage: React.FC = () => {
     }
   };
 
-  async function pinJSONToIPFS(formData: FormData) {
-    try {
-      const data = JSON.stringify({
-        pinataContent: formData,
-        pinataMetadata: {
-          name: formData.get("name"),
-        },
-      });
-      const res = await fetch("https://api.pinata.cloud/pinning/pinJSONToIPFS", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${ipfsJWT}`,
-        },
-        body: data,
-      });
-      const resData = await res.json();
-      console.log(resData);
-      return resData;
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
   const { data: isCustomer } = useScaffoldReadContract({
     contractName: "LinkContract",
     functionName: "customer_C",
@@ -127,7 +102,7 @@ const RegisterPage: React.FC = () => {
     onLogs: logs => {
       logs.map(log => {
         const { vendor } = log.args;
-        toast.success("📡 Registration complete => " + vendor);
+        toast.success("Welcome " + vendor);
       });
     },
   });
@@ -142,32 +117,35 @@ const RegisterPage: React.FC = () => {
       return;
     }
     // Handle form submission logic here
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("email", email);
-    formData.append("phoneNumber", phoneNumber);
-    formData.append("address", address);
-    formData.append("role", role);
+    const formData = {
+      name: name,
+      email: email,
+      phoneNumber: phoneNumber,
+      address: address,
+      role: role,
+      picture: "",
+      service: "",
+      file1: "",
+      file2: "",
+      file3: "",
+    };
     if (picture) {
-      formData.append("picture", picture);
+      formData.picture = picture;
     }
     if (role === "vendor") {
-      formData.append("service", service);
-      formData.append("file1", file1);
-      formData.append("file2", file2);
-      formData.append("file3", file3);
+      formData.service = service;
+      formData.file1 = file1;
+      formData.file2 = file2;
+      formData.file3 = file3;
     }
     const res = await pinJSONToIPFS(formData);
-    const ipfsHash = `${IPFS_ENDPOINT}/${res.IpfsHash}`;
+    const ipfsHash = res?.toString();
     try {
       await writeContractAsync({
         functionName: role === "vendor" ? "RegisterVendor" : "RegisterCustomer",
         args: [ipfsHash],
-        // @ts-expect-error
-        onBlockConfirmation: () => toast.success(`Successfully registered, welcome ${name}`),
       });
-      const newUser = new User({ address: connectedAddress, chats: [], preview: [] });
-      await newUser.save();
+      initializeUser(connectedAddress as string);
       setLoading(false);
       router.replace("/profile");
     } catch (error) {
@@ -186,6 +164,7 @@ const RegisterPage: React.FC = () => {
           </div>
           <input
             type="text"
+            name="name"
             value={name}
             onChange={e => setName(e.target.value)}
             className="input input-bordered input-accent w-full max-w-lg"
@@ -197,6 +176,7 @@ const RegisterPage: React.FC = () => {
           </div>
           <input
             type="email"
+            name="email"
             placeholder="name@link.com"
             value={email}
             onChange={e => setEmail(e.target.value)}
@@ -210,6 +190,7 @@ const RegisterPage: React.FC = () => {
           </div>
           <input
             type="text"
+            name="phoneNumber"
             value={phoneNumber}
             onChange={e => setPhoneNumber(e.target.value)}
             className="input input-bordered input-accent w-full max-w-lg"
@@ -222,13 +203,19 @@ const RegisterPage: React.FC = () => {
           </div>
           <input
             type="text"
+            name="address"
             value={address}
             onChange={e => setAddress(e.target.value)}
             className="input input-bordered input-accent w-full max-w-lg"
           />
         </label>
 
-        <select className="select select-accent w-full max-w-lg" value={role} onChange={e => setRole(e.target.value)}>
+        <select
+          className="select select-accent w-full max-w-lg"
+          name="role"
+          value={role}
+          onChange={e => setRole(e.target.value)}
+        >
           <option defaultValue={""}>vendor or customer?</option>
           <option>vendor</option>
           <option>customer</option>

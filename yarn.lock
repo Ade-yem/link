@@ -971,6 +971,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@helia/json@npm:^3.0.4":
+  version: 3.0.4
+  resolution: "@helia/json@npm:3.0.4"
+  dependencies:
+    "@helia/interface": ^4.3.0
+    "@libp2p/interfaces": ^3.3.2
+    interface-blockstore: ^5.2.10
+    multiformats: ^13.1.0
+    progress-events: ^1.0.0
+  checksum: c8bcf9bb5a99c524c3192b179632a8089e32002dae92502b252cf7300e010c9e14ce8eb4401b22f3479bb34362de862b64df02efe0f789f3ba5fe21fc0aa8837
+  languageName: node
+  linkType: hard
+
 "@helia/routers@npm:^1.1.0":
   version: 1.1.0
   resolution: "@helia/routers@npm:1.1.0"
@@ -1318,6 +1331,13 @@ __metadata:
     progress-events: ^1.0.0
     uint8arraylist: ^2.4.8
   checksum: dd1ed26a2a84b211b967948a3c799e4b451c6a6c412d6539f26e7d3b1201d39dab086d6d70bea65e9baa6f56c5d4e40e7a5a7bfa2f6b09b73b6e97da901a6fe9
+  languageName: node
+  linkType: hard
+
+"@libp2p/interfaces@npm:^3.3.2":
+  version: 3.3.2
+  resolution: "@libp2p/interfaces@npm:3.3.2"
+  checksum: 3071fa49dcbb81a4b218248a1f648fba1061fb9c51e4b5edab9b8a7b9425c25afec96fdf3351ea7a469e7039269e59d95265682a934aa9c21630226dfcb67313
   languageName: node
   linkType: hard
 
@@ -2944,19 +2964,23 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@se-2/nextjs@workspace:packages/nextjs"
   dependencies:
+    "@helia/json": ^3.0.4
     "@heroicons/react": ~2.0.11
     "@rainbow-me/rainbowkit": 2.1.2
     "@tanstack/react-query": ~5.28.6
     "@trivago/prettier-plugin-sort-imports": ~4.1.1
+    "@types/aws4": ^1
     "@types/node": ^17.0.45
     "@types/nprogress": ^0
     "@types/react": ^18.0.21
     "@types/react-copy-to-clipboard": ^5.0.4
+    "@types/uuid": ^10
     "@typescript-eslint/eslint-plugin": ~5.40.0
     "@uniswap/sdk-core": ~4.0.1
     "@uniswap/v2-sdk": ~3.0.1
     abitype: 1.0.2
     autoprefixer: ~10.4.12
+    aws4: ^1.13.0
     blo: ~1.0.1
     burner-connector: ~0.0.8
     daisyui: 4.5.0
@@ -2967,6 +2991,7 @@ __metadata:
     helia: ^4.2.4
     mongodb: ^6.8.0
     mongoose: ^8.5.0
+    multiformats: ^13.1.3
     next: ~14.0.4
     next-themes: ~0.2.1
     nprogress: ~0.2.0
@@ -2984,6 +3009,7 @@ __metadata:
     typescript: 5.1.6
     use-debounce: ~8.0.4
     usehooks-ts: 2.13.0
+    uuid: ^10.0.0
     vercel: ~32.4.1
     viem: 2.13.6
     wagmi: 2.9.8
@@ -3419,6 +3445,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/aws4@npm:^1":
+  version: 1.11.6
+  resolution: "@types/aws4@npm:1.11.6"
+  dependencies:
+    "@types/node": "*"
+  checksum: 0f846e53f0a1fe8563b892ed2d11eaf782be9369aaaa3080a1dab293706533d038bae8395111171275ef885fcff5d0753b3ab501dba5dfee811763a46dd74e8e
+  languageName: node
+  linkType: hard
+
 "@types/bn.js@npm:^4.11.3":
   version: 4.11.6
   resolution: "@types/bn.js@npm:4.11.6"
@@ -3762,6 +3797,13 @@ __metadata:
   version: 2.0.7
   resolution: "@types/trusted-types@npm:2.0.7"
   checksum: 8e4202766a65877efcf5d5a41b7dd458480b36195e580a3b1085ad21e948bc417d55d6f8af1fd2a7ad008015d4117d5fdfe432731157da3c68678487174e4ba3
+  languageName: node
+  linkType: hard
+
+"@types/uuid@npm:^10":
+  version: 10.0.0
+  resolution: "@types/uuid@npm:10.0.0"
+  checksum: e3958f8b0fe551c86c14431f5940c3470127293280830684154b91dc7eb3514aeb79fe3216968833cf79d4d1c67f580f054b5be2cd562bebf4f728913e73e944
   languageName: node
   linkType: hard
 
@@ -5418,6 +5460,13 @@ __metadata:
   dependencies:
     possible-typed-array-names: ^1.0.0
   checksum: 1aa3ffbfe6578276996de660848b6e95669d9a95ad149e3dd0c0cda77db6ee1dbd9d1dd723b65b6d277b882dd0c4b91a654ae9d3cf9e1254b7e93e4908d78fd3
+  languageName: node
+  linkType: hard
+
+"aws4@npm:^1.13.0":
+  version: 1.13.0
+  resolution: "aws4@npm:1.13.0"
+  checksum: 71594a17a5f7b1a9151ef515500c18f1029caa51e2cb65c1b5b324d9bd8dac89896a9e296825d4e6befdcd612d7fc3b0d8042c667555a56df3ee1ab15d4d9b35
   languageName: node
   linkType: hard
 
@@ -11973,7 +12022,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"multiformats@npm:^13.0.0, multiformats@npm:^13.0.1, multiformats@npm:^13.1.0":
+"multiformats@npm:^13.0.0, multiformats@npm:^13.0.1, multiformats@npm:^13.1.0, multiformats@npm:^13.1.3":
   version: 13.1.3
   resolution: "multiformats@npm:13.1.3"
   checksum: afa163e9053061f9226ae7d70b80c89bc67ce7eb23eb4e07bef3bf1aff2b6d5ef982ae8f08c74fbb473066c889ac4d43da62cebf9c0628f21b1276eb1d57c5d0
@@ -16219,6 +16268,15 @@ __metadata:
   bin:
     uuid: ./bin/uuid
   checksum: 8793629d2799f500aeea9fcd0aec6c4e9fbcc4d62ed42159ad96be345c3fffac1bbf61a23e18e2782600884fee05e6d4012ce4b70d0037c8e987533ae6a77870
+  languageName: node
+  linkType: hard
+
+"uuid@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "uuid@npm:10.0.0"
+  bin:
+    uuid: dist/bin/uuid
+  checksum: 4b81611ade2885d2313ddd8dc865d93d8dccc13ddf901745edca8f86d99bc46d7a330d678e7532e7ebf93ce616679fb19b2e3568873ac0c14c999032acb25869
   languageName: node
   linkType: hard
 

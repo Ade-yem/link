@@ -142,7 +142,7 @@ contract LinkContract {
         emit Withdrawal(commission_total, block.timestamp);
     }    
 
-    function RegisterVendor(string memory ipfsDetails) public verifyBeforeRegistration {
+    function RegisterVendor(string memory ipfsDetails) public {
         Vendor memory newV = Vendor(ipfsDetails, msg.sender, 0, false);
         vendors[msg.sender] = newV;
         vendor_C[msg.sender] = true;
@@ -150,7 +150,7 @@ contract LinkContract {
         emit VendorRegistered(msg.sender);
     }
 
-    function RegisterCustomer(string memory ipfsDetails) public verifyBeforeRegistration {
+    function RegisterCustomer(string memory ipfsDetails) public {
         Customer memory newC = Customer(ipfsDetails, msg.sender);
         customers[msg.sender] = newC;
         customer_C[msg.sender] = true;
@@ -250,9 +250,10 @@ contract LinkContract {
      * @param complaint complaint
      * emits [ComplaintLodged] event
      */
-    function lodgeComplaint(string memory product_name, bytes32 id, string memory complaint) public {
+    function lodgeComplaint(string memory product_name, string memory complaint) public {
         Complaint memory complain = Complaint(msg.sender, product_name, complaint, "", block.timestamp, false);
         complaints[msg.sender] = complain;
+        bytes32 id = taskNames[product_name];
         vendors[tasks[id].vendor].flagged = true;
         emit ComplaintLodged(msg.sender, product_name, complaint);
         emit VendorFlagged(tasks[id].vendor, block.timestamp);

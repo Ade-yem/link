@@ -17,7 +17,7 @@ describe("Link Contract", function () {
   beforeEach(async function () {
     Link = await ethers.getContractFactory("LinkContract");
     [owner, customer, vendor, arbitrator, ...addrs] = await ethers.getSigners();
-    link = (await Link.deploy(10)) as LinkContract; // Assuming 10% commission rate
+    link = (await Link.deploy()) as LinkContract; // Assuming 10% commission rate
     await link.waitForDeployment();
     await link.connect(arbitrator).addArbitrator();
     await link.connect(vendor).RegisterVendor("vfgxhvjklkjcrxcygugu");
@@ -36,12 +36,12 @@ describe("Link Contract", function () {
 
   describe("Register", function () {
     it("Should throw error when vendor trying to re register", async function () {
-      expect(await link.connect(vendor).RegisterVendor("vfgxhvjklkjcrxcygugu")).to.be.revertedWith(
+      await expect(link.connect(vendor).RegisterVendor("vfgxhvjklkjcrxcygugu")).to.be.revertedWith(
         "You are already registered",
       );
     });
     it("Should throw error when customer trying to re register", async function () {
-      expect(await link.connect(customer).RegisterCustomer("vfgxhvjklkjcrxcygugu")).to.be.revertedWith(
+      await expect(link.connect(customer).RegisterCustomer("vfgxhvjklkjcrxcygugu")).to.be.revertedWith(
         "You are already registered",
       );
     });
@@ -92,19 +92,10 @@ describe("Link Contract", function () {
         to: link.getAddress(),
         value: ethers.parseEther("1.0"),
       });
-      const ownerBalanceBefore = await ethers.provider.getBalance(owner.getAddress());
       const contract_balance = await ethers.provider.getBalance(link.getAddress());
 
       // Capture the transaction details to calculate gas cost
-      const tx = await link.connect(owner).withdraw();
-      const receipt = await tx.wait(); // Wait for the transaction to be mined
-      const gasUsed = ethers.toBigInt(receipt.gasUsed) * ethers.toBigInt(receipt?.effectiveGasPrice);
-
-      const ownerBalanceAfter = await ethers.provider.getBalance(owner.address);
-
-      // The owner's balance after should be the initial balance plus the contract balance minus the gas cost
-      // expect(ownerBalanceAfter).to.equal(ownerBalanceBefore);
-      expect(ownerBalanceAfter).to.equal(ownerBalanceBefore + (contract_balance - gasUsed));
+      await expect(link.connect(owner).withdraw()).to.changeEtherBalance(owner, contract_balance);
     });
 
     it("Should fail if non-owner tries to withdraw", async function () {
