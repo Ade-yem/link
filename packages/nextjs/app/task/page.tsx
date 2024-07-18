@@ -7,8 +7,6 @@ import { AddressInput } from "~~/components/scaffold-eth";
 import { EtherInput } from "~~/components/scaffold-eth";
 import { useScaffoldWatchContractEvent, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
-// import { addFileToIpfs } from "~~/services/web3/pinata";
-
 const TaskForm = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -31,8 +29,8 @@ const TaskForm = () => {
     eventName: "TaskAdded",
     onLogs: logs => {
       logs.map(log => {
-        const { vendor, name, id, price } = log.args;
-        toast.success(`📡 Task ${name} with id: ${id} created and assigned to ${vendor} at ${price}ETH`);
+        const { name } = log.args;
+        toast.success(`📡 Task ${name} created`);
       });
     },
   });
@@ -44,7 +42,7 @@ const TaskForm = () => {
     try {
       await writeContractAsync({
         functionName: "addTask",
-        args: [title, description, parseEther(price), vendorAddress],
+        args: [title, description, parseEther(price), vendorAddress as `0x${string}`],
       });
       setLoading(false);
     } catch (error: any) {

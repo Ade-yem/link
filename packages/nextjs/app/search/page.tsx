@@ -29,10 +29,10 @@ const SearchPage = () => {
 
   useEffect(() => {
     const parseResult = async () => {
-      data?.forEach(async vendor => {
+      data?.forEach(async (vendor: any) => {
         try {
-          const vendorData = await Contract?.read.vendors([vendor]);
-          const vendorProfile = await Contract?.read.profiles([vendor]);
+          const vendorData: any = await Contract?.read.vendors([vendor]);
+          const vendorProfile: any = await Contract?.read.profiles([vendor]);
           if (vendorData && vendorProfile && (vendorData[0] === query || query === "")) {
             const details: Details = {
               name: vendorProfile[0],
