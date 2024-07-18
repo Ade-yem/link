@@ -44,7 +44,7 @@ const Services = () => {
   return (
     <div className="px-8">
       {/* List of services */}
-      <div className="my-10 grid gap-2 grid-cols-[repeat(auto-fit,minmax(110px,150px))]">
+      <div className="my-10 space-x-2 flex justify-center flex-wrap">
         {servicesData.listOfServices.map(listOfService => (
           <Link
             key={listOfService.to}
