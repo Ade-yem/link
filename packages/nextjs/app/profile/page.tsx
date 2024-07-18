@@ -161,7 +161,7 @@ const ProfilePage: NextPage = () => {
             <h3 className="font-bold text-xl">Tasks</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 p-2 m-4">
               {allTasks?.map(
-                task =>
+                (task: any) =>
                   (task.vendor === connectedAddress || task.customer === connectedAddress) && (
                     <div key={task.id} className="card bg-base-100 max-w-96 space-y-3 shadow-md">
                       <div className="card-body">

@@ -151,7 +151,7 @@ contract LinkContract {
         emit Withdrawal(commission_total, block.timestamp);
     }    
 
-    function RegisterVendor(string memory name, string memory email, string memory phoneNumber, string memory homeAddress, string memory role, string memory picture, string memory service, string memory file1, string memory file2, string memory file3) public {
+    function RegisterVendor(string memory name, string memory email, string memory phoneNumber, string memory homeAddress, string memory role, string memory picture, string memory service, string memory file1, string memory file2, string memory file3) verifyBeforeRegistration public {
         Profile memory newP = Profile(name, email, phoneNumber, homeAddress, role, picture, msg.sender);
         Vendor memory newV = Vendor(service, file1, file2, file3, msg.sender, 0, false);
         profiles[msg.sender] = newP;
@@ -161,7 +161,7 @@ contract LinkContract {
         emit VendorRegistered(msg.sender);
     }
 
-    function RegisterCustomer(string memory name, string memory email, string memory phoneNumber, string memory homeAddress, string memory role, string memory picture) public {
+    function RegisterCustomer(string memory name, string memory email, string memory phoneNumber, string memory homeAddress, string memory role, string memory picture) verifyBeforeRegistration public {
         Profile memory newC = Profile(name, email, phoneNumber, homeAddress, role, picture, msg.sender);
         customers[msg.sender] = newC;
         profiles[msg.sender] = newC;

@@ -7,16 +7,10 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   4202: {
     LinkContract: {
-      address: "0xef975559d5d55ef7a7D0BB442059e9caB4755BdD",
+      address: "0x50fA36b67daFdc52BDCF6077545b6E4Aa6f9b4db",
       abi: [
         {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "rate",
-              type: "uint256",
-            },
-          ],
+          inputs: [],
           stateMutability: "nonpayable",
           type: "constructor",
         },
@@ -275,7 +269,32 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "string",
-              name: "ipfsDetails",
+              name: "name",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "email",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "phoneNumber",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "homeAddress",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "role",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "picture",
               type: "string",
             },
           ],
@@ -288,7 +307,52 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "string",
-              name: "ipfsDetails",
+              name: "name",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "email",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "phoneNumber",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "homeAddress",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "role",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "picture",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "service",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "file1",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "file2",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "file3",
               type: "string",
             },
           ],
@@ -378,6 +442,55 @@ const deployedContracts = {
               internalType: "bool",
               name: "",
               type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          name: "customers",
+          outputs: [
+            {
+              internalType: "string",
+              name: "name",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "email",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "phoneNumber",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "homeAddress",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "role",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "picture",
+              type: "string",
+            },
+            {
+              internalType: "address",
+              name: "account",
+              type: "address",
             },
           ],
           stateMutability: "view",
@@ -534,11 +647,6 @@ const deployedContracts = {
               type: "string",
             },
             {
-              internalType: "bytes32",
-              name: "id",
-              type: "bytes32",
-            },
-            {
               internalType: "string",
               name: "complaint",
               type: "string",
@@ -580,6 +688,55 @@ const deployedContracts = {
           name: "paySeller",
           outputs: [],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          name: "profiles",
+          outputs: [
+            {
+              internalType: "string",
+              name: "name",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "email",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "phoneNumber",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "homeAddress",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "role",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "picture",
+              type: "string",
+            },
+            {
+              internalType: "address",
+              name: "account",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -693,6 +850,55 @@ const deployedContracts = {
             {
               internalType: "bool",
               name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          name: "vendors",
+          outputs: [
+            {
+              internalType: "string",
+              name: "service",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "file1",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "file2",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "file3",
+              type: "string",
+            },
+            {
+              internalType: "address",
+              name: "account",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "totalMoney",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "flagged",
               type: "bool",
             },
           ],

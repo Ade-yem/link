@@ -53,8 +53,7 @@ function ChatPreview({ preview }: { preview: Preview }) {
       }}
       className="flex flex-col border border-neutral gap-2 p-3"
     >
-      {/* @ts-ignore */}
-      <Address address={preview.receiver} />
+      <Address address={preview.receiver as `0x${string}`} />
     </div>
   );
 }
