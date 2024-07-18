@@ -54,6 +54,13 @@ const ProfilePage: NextPage = () => {
     });
     setLoading(false);
   }
+  function Withdraw() {
+    setLoading(true);
+    writeContractAsync({
+      functionName: "paySeller",
+    });
+    setLoading(false);
+  }
   return (
     <div>
       {loading ? (
@@ -110,6 +117,11 @@ const ProfilePage: NextPage = () => {
               {isCustomer && (
                 <button className="btn btn-md bg-success dark:bg-secondary">
                   <a href={`/task`}>Hire Someone</a>
+                </button>
+              )}
+              {isVendor && (
+                <button className="btn btn-md bg-success dark:bg-secondary" onClick={Withdraw}>
+                  Withdraw
                 </button>
               )}
               <button className="btn btn-md dark:bg-success bg-secondary">
