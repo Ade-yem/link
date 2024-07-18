@@ -44,7 +44,7 @@ const Services = () => {
   return (
     <div className="px-8">
       {/* List of services */}
-      <div className="my-10 grid gap-2 grid-cols-[repeat(auto-fit,minmax(110px,1fr))]">
+      <div className="my-10 grid gap-2 grid-cols-[repeat(auto-fit,minmax(110px,150px))]">
         {servicesData.listOfServices.map(listOfService => (
           <Link
             key={listOfService.to}
@@ -58,6 +58,7 @@ const Services = () => {
       </div>
 
       {/* List of services */}
+
       <div className="grid grid-cols-1 xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2  place-center gap-8">
         {result.map(servicesProfile => (
           <ServiceProfileCard

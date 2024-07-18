@@ -1,11 +1,12 @@
 "use client";
 
+import Hero from "./components/Hero";
 import type { NextPage } from "next";
 
 const Home: NextPage = () => {
   return (
     <div>
-      <div className="flex items-center flex-col flex-grow pt-10">Welcome</div>
+      <Hero />
     </div>
   );
 };
