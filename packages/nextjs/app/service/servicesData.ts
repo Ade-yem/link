@@ -93,47 +93,47 @@ const listOfServices: Service[] = [
   {
     name: "Cleaning",
     icon: houseSVG,
-    to: "cleaning",
+    to: "#",
   },
   {
     name: "Plumbing",
     icon: houseSVG,
-    to: "plumbing",
+    to: "#",
   },
   {
     name: "electrical",
     icon: houseSVG,
-    to: "electrical",
+    to: "#",
   },
   {
     name: "appearance repair",
     icon: houseSVG,
-    to: "appearance-repair",
+    to: "#",
   },
   {
     name: "handyman",
     icon: houseSVG,
-    to: "handyman",
+    to: "#",
   },
   {
     name: "tree trimming",
     icon: houseSVG,
-    to: "tree-trimming",
+    to: "#",
   },
   {
     name: "painting",
     icon: houseSVG,
-    to: "painting",
+    to: "#",
   },
   {
     name: "roofing",
     icon: houseSVG,
-    to: "roofing",
+    to: "#",
   },
   {
     name: "local moving",
     icon: houseSVG,
-    to: "local-moving",
+    to: "#",
   },
 ];
 
