@@ -54,44 +54,55 @@ const TaskForm = () => {
   };
 
   return (
-    <div className="flex flex-col max-w-lg justify-center m-auto">
-      <h1>Create Task</h1>
-      <form onSubmit={handleSubmit} className="flex-col w-full p-2">
-        <div className="mb-2 flex flex-col space-y-2 p-4">
-          <label>Title</label>
-          <input
-            type="text"
-            id="title"
-            value={title}
-            className="w-full outline-none dark:border-slate-600 border-blue-100 border-2 rounded-full bg-transparent py-2 px-8"
-            onChange={e => setTitle(e.target.value)}
-          />
-        </div>
-        <div className="mb-2 flex flex-col space-y-2 p-4">
-          <label>Description</label>
-          <textarea
-            id="description"
-            value={description}
-            className="w-full outline-none dark:border-slate-600 border-blue-100 border-2 rounded-tl-lg rounded-br-lg bg-transparent py-2 px-8"
-            onChange={e => setDescription(e.target.value)}
-          ></textarea>
-        </div>
-        <div className="mb-2 flex flex-col space-y-2 p-4">
-          <label htmlFor="price">Price</label>
-          <EtherInput value={price} onChange={e => setPrice(e)} />
-        </div>
-        <div className="mb-2 flex flex-col space-y-2 p-4">
-          <label htmlFor="vendorAddress">Vendor Address</label>
-          <AddressInput onChange={setVendorAddress} value={vendorAddress} placeholder="Input vendor's address" />
+    <div className="flex flex-col w-full max-w-4xl justify-center m-auto md:border-2 md:dark:border-slate-500 rounded-md p-4">
+      <h1 className="text-4xl text-center text-slate-600 dark:text-slate-400">Create Task</h1>
+      <form onSubmit={handleSubmit} className="w-full p-2">
+        <div className="md:flex w-full">
+          {/*Title and Description */}
+          <div className="w-full">
+            <div className="mb-2 flex flex-col space-y-2 p-4">
+              <label>Title</label>
+              <input
+                type="text"
+                id="title"
+                value={title}
+                className="text-slate-400 w-full outline-none dark:border-slate-600 border-slate-600 border-2 rounded-full bg-transparent py-2 px-8"
+                onChange={e => setTitle(e.target.value)}
+              />
+            </div>
+            <div className="mb-2 flex flex-col space-y-2 p-4">
+              <label>Description</label>
+              <textarea
+                id="description"
+                value={description}
+                className="w-full outline-none dark:border-slate-600 border-slate-600 border-2 rounded-tl-lg rounded-br-lg bg-transparent py-2 px-8 text-slate-400"
+                onChange={e => setDescription(e.target.value)}
+              ></textarea>
+            </div>
+          </div>
+
+          {/*Price and Vendor address */}
+          <div className="w-full">
+            <div className="mb-2 flex flex-col space-y-2 p-4">
+              <label htmlFor="price">Price</label>
+              <EtherInput value={price} onChange={e => setPrice(e)} />
+            </div>
+            <div className="mb-2 flex flex-col space-y-2 p-4">
+              <label htmlFor="vendorAddress">Vendor Address</label>
+              <AddressInput onChange={setVendorAddress} value={vendorAddress} placeholder="Input vendor's address" />
+            </div>
+          </div>
         </div>
 
         {/* <label htmlFor="image">Image</label>
       <input type="file" id="image" onChange={handleImageChange} /> */}
 
-        <button type="submit" className="btn w-full btn-success">
-          {loading && <span className="loading loading-dots loading-md text-accent"></span>}
-          {!loading && <span className="">Create Task</span>}
-        </button>
+        <div className="w-full grid items-center mt-8">
+          <button type="submit" className="btn w-full max-w-lg mx-auto px-8 btn-success">
+            {loading && <span className="loading loading-dots loading-md text-accent"></span>}
+            {!loading && <span className="text-xl">Create Task</span>}
+          </button>
+        </div>
       </form>
     </div>
   );
