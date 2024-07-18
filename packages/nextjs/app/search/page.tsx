@@ -1,44 +1,46 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import VendorCard from "~~/components/VendorCard";
-import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
-import { getDetailsFromIPFS } from "~~/services/web3/pinata";
-import { Details, Vendor } from "~~/types/utils";
+import { useScaffoldContract, useScaffoldReadContract } from "~~/hooks/scaffold-eth";
+import { Details } from "~~/types/utils";
 
 const SearchPage = () => {
   const search = useSearchParams();
   const router = useRouter();
   const query = search.get("query")?.toLocaleLowerCase() || "";
   const [result, setResult] = useState<Details[]>([]);
-  const handleSearch = (e: any) => {
+  const handleSearch = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const formData = new FormData(e.currentTarget);
     // Navigate to the dynamic route with the search term
-    router.push(`/search?query=${e.target.value}`);
+    const search = formData.get("search") as string;
+    router.push(`/search?query=${search}`);
+    router.refresh();
   };
   const { data } = useScaffoldReadContract({
     contractName: "LinkContract",
     functionName: "getAllVendors",
   });
+  const { data: Contract } = useScaffoldContract({
+    contractName: "LinkContract",
+  });
 
   useEffect(() => {
     const parseResult = async () => {
-      const res = data as unknown as Vendor[];
-      res.forEach(async vendor => {
+      data?.forEach(async vendor => {
         try {
-          const details: any = await getDetailsFromIPFS(vendor.ipfsDetails);
-          if (details.service === query) {
-            const det: Details = {
-              name: "",
-              picture: "",
-              service: "",
-              walletAddress: vendor.account,
+          const vendorData = await Contract?.read.vendors([vendor]);
+          const vendorProfile = await Contract?.read.profiles([vendor]);
+          if (vendorData && vendorProfile && (vendorData[0] === query || query === "")) {
+            const details: Details = {
+              name: vendorProfile[0],
+              picture: vendorProfile[5],
+              service: vendorData[0],
+              walletAddress: vendor as string,
             };
-            det.name = details.name;
-            det.picture = details.picture;
-            det.service = details.service;
-            setResult(prev => [...prev, det]);
+            setResult(prev => [...prev, details]);
           }
         } catch (error) {
           console.log(error);
@@ -46,13 +48,14 @@ const SearchPage = () => {
       });
     };
     parseResult();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, query]);
 
   return (
     <div>
-      <form onSubmit={handleSearch} className="flex justify-center space-x-2">
+      <form onSubmit={handleSearch} className="flex justify-center space-x-2 mt-4">
         <label className="input input-bordered flex items-center gap-2">
-          <input type="text" className="grow" placeholder="Search" />
+          <input type="text" className="grow" placeholder="Search" name="search" />
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 16 16"
@@ -70,13 +73,13 @@ const SearchPage = () => {
           Search
         </button>
       </form>
-      <p className="p-3 mt-3 mb-2">
+      <p className="p-3 mt-3 mb-2 text-center flex justify-center">
         Search Results for{" "}
-        <h1>
+        <span className="font-bold">
           {'"'}
           {query}
           {'"'}
-        </h1>
+        </span>
       </p>
       <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-3">
         {result.length > 0 &&

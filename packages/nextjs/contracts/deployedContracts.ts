@@ -719,7 +719,7 @@ const deployedContracts = {
   },
   31337: {
     LinkContract: {
-      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+      address: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
       abi: [
         {
           inputs: [],
@@ -981,7 +981,32 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "string",
-              name: "ipfsDetails",
+              name: "name",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "email",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "phoneNumber",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "homeAddress",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "role",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "picture",
               type: "string",
             },
           ],
@@ -994,7 +1019,52 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "string",
-              name: "ipfsDetails",
+              name: "name",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "email",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "phoneNumber",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "homeAddress",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "role",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "picture",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "service",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "file1",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "file2",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "file3",
               type: "string",
             },
           ],
@@ -1101,7 +1171,32 @@ const deployedContracts = {
           outputs: [
             {
               internalType: "string",
-              name: "ipfsDetails",
+              name: "name",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "email",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "phoneNumber",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "homeAddress",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "role",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "picture",
               type: "string",
             },
             {
@@ -1311,6 +1406,55 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          name: "profiles",
+          outputs: [
+            {
+              internalType: "string",
+              name: "name",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "email",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "phoneNumber",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "homeAddress",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "role",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "picture",
+              type: "string",
+            },
+            {
+              internalType: "address",
+              name: "account",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
               name: "customer",
               type: "address",
             },
@@ -1436,7 +1580,22 @@ const deployedContracts = {
           outputs: [
             {
               internalType: "string",
-              name: "ipfsDetails",
+              name: "service",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "file1",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "file2",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "file3",
               type: "string",
             },
             {

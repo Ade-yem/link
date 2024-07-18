@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -11,7 +11,8 @@ import {
   useScaffoldWriteContract,
 } from "~~/hooks/scaffold-eth";
 import { initializeUser } from "~~/lib/db";
-import { addFileToIpfs, pinJSONToIPFS } from "~~/services/web3/pinata";
+import { addFileToIpfs } from "~~/services/web3/pinata";
+import { Profile } from "~~/types/utils";
 
 const RegisterPage: React.FC = () => {
   const [name, setName] = useState("");
@@ -19,7 +20,7 @@ const RegisterPage: React.FC = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [address, setAddress] = useState("");
   const [service, setService] = useState("");
-  const [role, setRole] = useState("");
+  const [role, setRole] = useState<"customer" | "vendor" | undefined>(undefined);
   const [email, setEmail] = useState("");
   const [file1, setFile1] = useState("");
   const [file2, setFile2] = useState("");
@@ -96,6 +97,15 @@ const RegisterPage: React.FC = () => {
     args: [connectedAddress],
   });
 
+  useEffect(() => {
+    if (isCustomer || isVendor) {
+      setLoading(false);
+      toast.error("This account has been registered");
+      // router.replace("/profile");
+      return;
+    }
+  }, [isCustomer, isVendor, router]);
+
   useScaffoldWatchContractEvent({
     contractName: "LinkContract",
     eventName: role === "vendor" ? "VendorRegistered" : "CustomerRegistered",
@@ -110,14 +120,8 @@ const RegisterPage: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent) => {
     setLoading(true);
     event.preventDefault();
-    if (isCustomer || isVendor) {
-      setLoading(false);
-      toast.error("This account has been registered");
-      router.replace("/profile");
-      return;
-    }
     // Handle form submission logic here
-    const formData = {
+    const formData: Profile = {
       name: name,
       email: email,
       phoneNumber: phoneNumber,
@@ -128,6 +132,7 @@ const RegisterPage: React.FC = () => {
       file1: "",
       file2: "",
       file3: "",
+      walletAddress: connectedAddress as string,
     };
     if (picture) {
       formData.picture = picture;
@@ -138,13 +143,18 @@ const RegisterPage: React.FC = () => {
       formData.file2 = file2;
       formData.file3 = file3;
     }
-    const res = await pinJSONToIPFS(formData);
-    const ipfsHash = res?.toString();
     try {
-      await writeContractAsync({
-        functionName: role === "vendor" ? "RegisterVendor" : "RegisterCustomer",
-        args: [ipfsHash],
-      });
+      if (role === "vendor") {
+        await writeContractAsync({
+          functionName: "RegisterVendor",
+          args: [name, email, phoneNumber, address, role, picture, service, file1, file2, file3],
+        });
+      } else {
+        await writeContractAsync({
+          functionName: "RegisterCustomer",
+          args: [name, email, phoneNumber, address, role, picture],
+        });
+      }
       initializeUser(connectedAddress as string);
       setLoading(false);
       router.replace("/profile");
@@ -214,7 +224,7 @@ const RegisterPage: React.FC = () => {
           className="select select-accent w-full max-w-lg"
           name="role"
           value={role}
-          onChange={e => setRole(e.target.value)}
+          onChange={e => setRole(e.target.value as "vendor" | "customer" | undefined)}
         >
           <option defaultValue={""}>vendor or customer?</option>
           <option>vendor</option>

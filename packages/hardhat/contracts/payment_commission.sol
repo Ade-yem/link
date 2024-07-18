@@ -25,13 +25,21 @@ contract LinkContract {
         bool resolved;
     }
     struct Vendor {
-        string ipfsDetails;
+        string service;
+        string file1;
+        string file2;
+        string file3;
         address account;
         uint256 totalMoney;
         bool flagged;
     }
-    struct Customer {
-        string ipfsDetails;
+    struct Profile {
+        string  name;
+        string email;
+        string phoneNumber;
+        string homeAddress;
+        string role;
+        string picture;
         address account;
     }
     struct PendingTransferToVendor {
@@ -40,7 +48,8 @@ contract LinkContract {
         uint256 amount;
     }
     address public owner;
-    mapping (address => Customer) public customers;
+    mapping (address => Profile) public customers;
+    mapping (address => Profile) public profiles;
     mapping (address => Vendor) public vendors;
     mapping (bytes32 => Task) internal tasks;
     mapping (string => bytes32) internal taskNames;
@@ -142,17 +151,20 @@ contract LinkContract {
         emit Withdrawal(commission_total, block.timestamp);
     }    
 
-    function RegisterVendor(string memory ipfsDetails) public {
-        Vendor memory newV = Vendor(ipfsDetails, msg.sender, 0, false);
+    function RegisterVendor(string memory name, string memory email, string memory phoneNumber, string memory homeAddress, string memory role, string memory picture, string memory service, string memory file1, string memory file2, string memory file3) public {
+        Profile memory newP = Profile(name, email, phoneNumber, homeAddress, role, picture, msg.sender);
+        Vendor memory newV = Vendor(service, file1, file2, file3, msg.sender, 0, false);
+        profiles[msg.sender] = newP;
         vendors[msg.sender] = newV;
         vendor_C[msg.sender] = true;
         allVendors.push(msg.sender);
         emit VendorRegistered(msg.sender);
     }
 
-    function RegisterCustomer(string memory ipfsDetails) public {
-        Customer memory newC = Customer(ipfsDetails, msg.sender);
+    function RegisterCustomer(string memory name, string memory email, string memory phoneNumber, string memory homeAddress, string memory role, string memory picture) public {
+        Profile memory newC = Profile(name, email, phoneNumber, homeAddress, role, picture, msg.sender);
         customers[msg.sender] = newC;
+        profiles[msg.sender] = newC;
         customer_C[msg.sender] = true;
         emit CustomerRegistered(msg.sender);
     }
