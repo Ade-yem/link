@@ -5,6 +5,15 @@ export const getUserByAddress = async (address: string) => {
   return await User.findOne({ address: address });
 };
 
+export const initializeUser = async (address: string) => {
+  try {
+    await User.create({ address: address, chats: [], preview: [] });
+    // await user.save();
+  } catch (e) {
+    console.error(e);
+  }
+};
+
 export const getPreview = async (sender: string) => {
   try {
     const user = await User.findOne({ address: sender });

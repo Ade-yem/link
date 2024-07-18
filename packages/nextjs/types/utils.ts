@@ -25,9 +25,9 @@ export interface Details {
 export interface Profile {
   name: string;
   email: string;
-  phone: string;
+  phoneNumber: string;
   address: string;
-  role: "customer" | "vendor";
+  role: "customer" | "vendor" | undefined;
   picture: string;
   service?: string;
   file1?: string;

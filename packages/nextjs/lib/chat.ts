@@ -1,5 +1,5 @@
-import { randomUUID } from "crypto";
 import mongoose, { Schema } from "mongoose";
+import { v4 as uuidv4 } from "uuid";
 
 const chatSchema = new Schema({
   sender: {
@@ -33,7 +33,7 @@ const previewSchema = new Schema({
   },
   room: {
     type: String,
-    default: randomUUID(),
+    default: uuidv4(),
   },
   updatedAt: {
     type: Date,
@@ -50,4 +50,5 @@ const userSchema = new Schema({
   preview: [previewSchema],
 });
 
-export default mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
+export default User;

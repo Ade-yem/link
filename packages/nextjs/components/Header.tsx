@@ -123,19 +123,19 @@ export const Header = () => {
         </ul>
       </div>
       <div className="navbar-end flex-grow mr-4">
-        {!isVendor || !isCustomer ? (
-          <Link
-            href={"/register"}
-            className="bg-info font-semibold mr-4 dark:bg-secondary shadow-md hover:bg-secondary hover:shadow-md focus:!bg-secondary active:!text-neutral py-1.5 px-8 text-sm rounded-full gap-2 grid grid-flow-col"
-          >
-            Join
-          </Link>
-        ) : (
+        {isVendor || isCustomer ? (
           <Link
             href={"/profile"}
             className="bg-info font-semibold mr-4 dark:bg-secondary shadow-md hover:bg-secondary hover:shadow-md focus:!bg-secondary active:!text-neutral py-1.5 px-8 text-sm rounded-full gap-2 grid grid-flow-col"
           >
             Profile
+          </Link>
+        ) : (
+          <Link
+            href={"/register"}
+            className="bg-info font-semibold mr-4 dark:bg-secondary shadow-md hover:bg-secondary hover:shadow-md focus:!bg-secondary active:!text-neutral py-1.5 px-8 text-sm rounded-full gap-2 grid grid-flow-col"
+          >
+            Join
           </Link>
         )}
         <RainbowKitCustomConnectButton />

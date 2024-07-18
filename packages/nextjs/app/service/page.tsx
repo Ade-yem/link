@@ -1,9 +1,46 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import ServiceProfileCard from "./component/ServiceProfileCard";
 import servicesData from "./servicesData";
+import { useScaffoldContract, useScaffoldReadContract } from "~~/hooks/scaffold-eth";
+import { Details } from "~~/types/utils";
 
 const Services = () => {
+  const [result, setResult] = useState<Details[]>([]);
+  const { data } = useScaffoldReadContract({
+    contractName: "LinkContract",
+    functionName: "getAllVendors",
+  });
+  const { data: Contract } = useScaffoldContract({
+    contractName: "LinkContract",
+  });
+
+  useEffect(() => {
+    const parseResult = async () => {
+      data?.forEach(async vendor => {
+        try {
+          const vendorData = await Contract?.read.vendors([vendor]);
+          const vendorProfile = await Contract?.read.profiles([vendor]);
+          if (vendorData && vendorProfile) {
+            const details: Details = {
+              name: vendorProfile[0],
+              picture: vendorProfile[5],
+              service: vendorData[0],
+              walletAddress: vendor as string,
+            };
+            setResult(prev => [...prev, details]);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      });
+    };
+    parseResult();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
   return (
     <div className="px-8">
       {/* List of services */}
@@ -21,17 +58,16 @@ const Services = () => {
       </div>
 
       {/* List of services */}
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] place-center gap-8">
-        {servicesData.servicesProfiles.map(servicesProfile => (
+
+      <div className="grid grid-cols-1 xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2  place-center gap-8">
+        {result.map(servicesProfile => (
           <ServiceProfileCard
             key={servicesProfile.name}
-            image={servicesProfile.image}
-            rating={servicesProfile.stars}
+            picture={servicesProfile.picture}
+            // rating={servicesProfile.stars}
             name={servicesProfile.name}
             service={servicesProfile.service}
-            profile={servicesProfile.profile}
-            message={servicesProfile.message}
-            profileLink={servicesProfile.profileLink}
+            profileLink={servicesProfile.walletAddress}
           />
         ))}
       </div>
