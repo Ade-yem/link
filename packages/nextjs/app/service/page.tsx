@@ -1,4 +1,3 @@
-import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import ServiceProfileCard from "./component/ServiceProfileCard";
@@ -8,7 +7,7 @@ const Services = () => {
   return (
     <div className="px-8">
       {/* List of services */}
-      <div className="my-10 grid gap-2 grid-cols-[repeat(auto-fit,minmax(110px,1fr))]">
+      <div className="my-10 grid gap-2 grid-cols-[repeat(auto-fit,minmax(110px,150px))]">
         {servicesData.listOfServices.map(listOfService => (
           <Link
             key={listOfService.to}
@@ -22,7 +21,7 @@ const Services = () => {
       </div>
 
       {/* List of services */}
-      <div className="grid grid-cols-[300px_300px_300px_300px] place-center gap-8">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] place-center gap-8">
         {servicesData.servicesProfiles.map(servicesProfile => (
           <ServiceProfileCard
             key={servicesProfile.name}

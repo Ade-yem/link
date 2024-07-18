@@ -10,9 +10,9 @@ const Home: NextPage = () => {
   // const { address: connectedAddress } = useAccount();
 
   return (
-    <>
+    <div>
       <Hero />
-    </>
+    </div>
   );
 };
 
