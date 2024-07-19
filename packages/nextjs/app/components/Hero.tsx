@@ -35,6 +35,9 @@ const Hero = () => {
           alt="magnifying-glass"
           className="absolute top-[18px] left-[20px] tyext"
         />
+        <button className="hidden" type="submit">
+          Submit
+        </button>
       </form>
     </div>
   );
