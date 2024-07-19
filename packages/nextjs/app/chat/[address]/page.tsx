@@ -2,7 +2,6 @@
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { useRouter } from "next/router";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 import { useAccount } from "wagmi";
@@ -13,12 +12,11 @@ import { createPreview, getRoomFromPreview } from "~~/lib/db";
 import { addFileToIpfs } from "~~/services/web3/pinata";
 import { ChatMessage } from "~~/types/utils";
 
-export default function Chat() {
+export default function Chat({ params }: { params: { address: string } }) {
   const { address } = useAccount();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const router = useRouter();
-  const query = router.query.address;
+  const query = params.address;
   const receiver = query?.[0];
   const [room, setRoom] = useState<string | undefined>(query?.[1] ?? undefined);
   const socket = io();

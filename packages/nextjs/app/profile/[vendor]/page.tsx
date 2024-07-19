@@ -65,6 +65,9 @@ const ViewProfile = ({ params }: { params: { vendor: string } }) => {
             <button className="btn btn-md dark:bg-success bg-secondary">
               <a href={`/chat/${query}`}>Message</a>
             </button>
+            <button className="btn btn-md dark:bg-success bg-secondary">
+              <a href={`/task/create/${query}`}>Hire me</a>
+            </button>
           </div>
           {ven && (
             <div className="flex flex-col gap-3">
