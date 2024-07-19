@@ -40,7 +40,7 @@ export default function ViewTask({ params }: { params: { task: string } }) {
                 </div>
                 <div className="flex flex-col space-y-2">
                   <div className="text-base text-bold">Task Price</div>
-                  <div className="text-base">{data.price.toString()}</div>
+                  <div className="text-base">{(BigInt(data.price) / BigInt(10) ** BigInt(18)).toString()} ETH</div>
                 </div>
                 <div className="flex flex-col space-y-2">
                   <div className="text-base text-bold">Task Status</div>
