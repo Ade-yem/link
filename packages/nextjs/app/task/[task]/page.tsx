@@ -10,8 +10,7 @@ export default function ViewTask({ params }: { params: { task: string } }) {
   const { data } = useScaffoldReadContract({
     contractName: "LinkContract",
     functionName: "getTask",
-    // @ts-ignore
-    args: [params.task],
+    args: [params.task as `0x${string}`],
   });
 
   function Pay(price: bigint, name: string) {
@@ -24,43 +23,39 @@ export default function ViewTask({ params }: { params: { task: string } }) {
     setLoading(false);
   }
   return (
-    <div className="flex flex-col space-y-4 relative">
-      <h1 className="text-bold text-xl">Vendor Profile</h1>
-      {loading ? (
-        <div className="flex justify-center">
-          {data && (
-            <div className="card">
-              <div className="flex flex-col space-y-4">
+    <div className="flex flex-col space-y-4 m-4 justify-center">
+      <h1 className="text-bold text-xl text-center p-3">Task</h1>
+      <div className="flex justify-center">
+        {data && (
+          <div className="card">
+            <div className="flex flex-col space-y-4">
+              <div className="flex flex-col space-y-2">
                 <div className="flex flex-col space-y-2">
-                  <div className="flex flex-col space-y-2">
-                    <div className="text-lg text-bold">Task Name</div>
-                    <div className="text-lg">{data.name}</div>
-                  </div>
-                  <div className="flex flex-col space-y-2">
-                    <div className="text-lg text-bold">Task Description</div>
-                    <div className="text-lg">{data.description}</div>
-                  </div>
-                  <div className="flex flex-col space-y-2">
-                    <div className="text-lg text-bold">Task Price</div>
-                    <div className="text-lg">{data.price}</div>
-                  </div>
-                  <div className="flex flex-col space-y-2">
-                    <div className="text-lg text-bold">Task Status</div>
-                    <div className="text-lg">{data.completed ? "Completed" : "Not completed"}</div>
-                  </div>
+                  <div className="text-base text-bold">Task Name</div>
+                  <div className="text-base">{data.name}</div>
                 </div>
-                <div className="card-actions">
-                  <button className="btn btn-primary" onClick={() => Pay(data.price, data.name)}>
-                    Pay for Task
-                  </button>
+                <div className="flex flex-col space-y-2">
+                  <div className="text-base text-bold">Task Description</div>
+                  <div className="text-base">{data.description}</div>
+                </div>
+                <div className="flex flex-col space-y-2">
+                  <div className="text-base text-bold">Task Price</div>
+                  <div className="text-base">{data.price.toString()}</div>
+                </div>
+                <div className="flex flex-col space-y-2">
+                  <div className="text-base text-bold">Task Status</div>
+                  <div className="text-base">{data.completed ? "Completed" : "Not completed"}</div>
                 </div>
               </div>
+              <div className="card-actions">
+                <button className="btn btn-primary" onClick={() => Pay(data.price, data.name)}>
+                  {loading ? <span className="loading loading-lg loading-dots text-secondary"></span> : "Pay for Task"}
+                </button>
+              </div>
             </div>
-          )}
-        </div>
-      ) : (
-        <span className="loading loading-lg loading-dots text-secondary"></span>
-      )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

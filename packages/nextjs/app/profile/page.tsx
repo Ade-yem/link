@@ -92,7 +92,7 @@ const ProfilePage: NextPage = () => {
             <div className="flex flex-col justify-center">
               {prof && prof[0] !== undefined && <h3 className="font-bold text-center mb-2 text-lg">{prof[0]}</h3>}
               {isVendor && ven && ven[0] !== undefined && <p className="text-semibold text-center mb-2">{ven[0]}</p>}
-              {isVendor && ven && ven[5] && <p className="text-semibold mb-2">Balance: {ven[5]}</p>}
+              {isVendor && ven && ven[5] && <p className="text-semibold mb-2">My balance: {ven[5].toString()}</p>}
               {prof && prof[3] !== undefined && (
                 <p className="flex space-x-2 justify-center">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -173,13 +173,13 @@ const ProfilePage: NextPage = () => {
             <h3 className="font-bold text-xl">Tasks</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 p-2 m-4">
               {allTasks?.map(
-                (task: any) =>
+                task =>
                   (task.vendor === connectedAddress || task.customer === connectedAddress) && (
                     <div key={task.id} className="card bg-base-100 max-w-96 space-y-3 shadow-md">
                       <div className="card-body">
                         <h2 className="card-title">{task.name}</h2>
                         <Address address={isVendor ? task.customer : task.vendor} />
-                        <p>{task.price} ETH</p>
+                        <p>{task.price.toString()} ETH</p>
                       </div>
                       <div className="card-actions justify-center m-4">
                         <button className=" w-full rounded-xl text-center lg:px-2 lg:py-2 px-2 py-3 border shadow-md btn dark:btn-success btn-secondary">
