@@ -29,6 +29,7 @@ const SearchPage = () => {
 
   useEffect(() => {
     const parseResult = async () => {
+      const res: Details[] = [];
       data?.forEach(async (vendor: any) => {
         try {
           const vendorData: any = await Contract?.read.vendors([vendor]);
@@ -40,12 +41,13 @@ const SearchPage = () => {
               service: vendorData[0],
               walletAddress: vendor as string,
             };
-            setResult(prev => [...prev, details]);
+            res.push(details);
           }
         } catch (error) {
           console.log(error);
         }
       });
+      setResult(res);
     };
     parseResult();
     // eslint-disable-next-line react-hooks/exhaustive-deps

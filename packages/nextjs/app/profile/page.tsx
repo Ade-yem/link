@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import man from "/public/man.svg";
@@ -10,12 +10,23 @@ import Loading from "~~/components/Loading";
 import BackButton from "~~/components/backButton";
 import { Address } from "~~/components/scaffold-eth";
 import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { DIVISOR } from "~~/types/utils";
+
+type Tasks = {
+  id: `0x${string}`;
+  name: string;
+  description: string;
+  price: bigint;
+  vendor: `0x${string}` | string;
+  customer: `0x${string}` | string;
+  completed: boolean;
+}[];
 
 const ProfilePage: NextPage = () => {
   const { address: connectedAddress } = useAccount();
   const { writeContractAsync } = useScaffoldWriteContract("LinkContract");
   const [loading, setLoading] = useState<boolean>(false);
-  // const [allTasks, setAllTasks] = useState<any>([]);
+  const [allTasks, setAllTasks] = useState<Tasks>([]);
   const { data: isCustomer } = useScaffoldReadContract({
     contractName: "LinkContract",
     functionName: "customer_C",
@@ -26,8 +37,6 @@ const ProfilePage: NextPage = () => {
     functionName: "vendor_C",
     args: [connectedAddress],
   });
-
-  console.log(isVendor);
 
   const { data: ven } = useScaffoldReadContract({
     contractName: "LinkContract",
@@ -40,10 +49,27 @@ const ProfilePage: NextPage = () => {
     args: [connectedAddress],
   });
 
-  const { data: allTasks } = useScaffoldReadContract({
+  const { data: taskList } = useScaffoldReadContract({
     contractName: "LinkContract",
     functionName: "getAllTasks",
   });
+
+  useEffect(() => {
+    async function getTasks() {
+      if (taskList) {
+        const tasks: Tasks = [];
+        for (const val of taskList) {
+          if (isVendor && val.vendor === connectedAddress) {
+            tasks.push(val);
+          } else if (isCustomer && val.customer === connectedAddress) {
+            tasks.push(val);
+          }
+        }
+        setAllTasks(tasks);
+      }
+    }
+    getTasks();
+  }, [connectedAddress, isCustomer, isVendor, taskList]);
 
   function Pay(price: bigint, name: string) {
     setLoading(true);
@@ -93,9 +119,7 @@ const ProfilePage: NextPage = () => {
               {prof && prof[0] !== undefined && <h3 className="font-bold text-center mb-2 text-lg">{prof[0]}</h3>}
               {isVendor && ven && ven[0] !== undefined && <p className="text-semibold text-center mb-2">{ven[0]}</p>}
               {isVendor && ven && ven[5] && (
-                <p className="text-semibold mb-2">
-                  My balance: {(BigInt(ven[5]) / BigInt(10) ** BigInt(18)).toString()} ETH
-                </p>
+                <p className="text-semibold mb-2 text-center">My balance: {Number(ven[5]) / Number(DIVISOR)} ETH</p>
               )}
               {prof && prof[3] !== undefined && (
                 <p className="flex space-x-2 justify-center">
@@ -120,7 +144,7 @@ const ProfilePage: NextPage = () => {
             <div className="flex justify-center space-x-4">
               {isCustomer && (
                 <button className="btn btn-md bg-success dark:bg-secondary">
-                  <a href={`/task`}>Hire Someone</a>
+                  <a href={`/service`}>Hire Someone</a>
                 </button>
               )}
               {isVendor && (
@@ -174,33 +198,31 @@ const ProfilePage: NextPage = () => {
             )}
           </div>
           <section className="flex flex-col justify-center gap-3">
-            <h3 className="font-bold text-xl">Tasks</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 p-2 m-4">
-              {allTasks?.map(
-                task =>
-                  (task.vendor === connectedAddress || task.customer === connectedAddress) && (
-                    <div key={task.id} className="card bg-base-100 max-w-96 space-y-3 shadow-md">
-                      <div className="card-body">
-                        <h2 className="card-title">{task.name}</h2>
-                        <Address address={isVendor ? task.customer : task.vendor} />
-                        <p>{(BigInt(task.price) / BigInt(10) ** BigInt(18)).toString()} ETH</p>
-                      </div>
-                      <div className="card-actions justify-center m-4">
-                        <button className=" w-full rounded-xl text-center lg:px-2 lg:py-2 px-2 py-3 border shadow-md btn dark:btn-success btn-secondary">
-                          <Link href={`/task/${task.id}`}>View</Link>
-                        </button>
-                        {isCustomer && (
-                          <button
-                            onClick={() => Pay(task.price, task.name)}
-                            className="w-full rounded-xl text-center lg:px-2 lg:py-2 px-2 py-3 border shadow-md btn btn-success dark:btn-secondary"
-                          >
-                            Pay
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  ),
-              )}
+            <h3 className="font-bold text-xl text-center text-underline">Tasks</h3>
+            <br />
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 p-2 m-4 gap-4">
+              {allTasks?.map(task => (
+                <div key={task.id} className="card bg-base-100 max-w-96 space-y-3 shadow-md">
+                  <div className="card-body">
+                    <h2 className="card-title">{task.name}</h2>
+                    <Address address={isVendor ? (task.customer as `0x${string}`) : (task.vendor as `0x${string}`)} />
+                    <p>{Number(task.price) / Number(DIVISOR)} ETH</p>
+                  </div>
+                  <div className="card-actions justify-center m-4">
+                    <button className=" w-full rounded-xl text-center lg:px-2 lg:py-2 px-2 py-3 border shadow-md btn dark:btn-success btn-secondary">
+                      <Link href={`/task/${task.id}`}>View</Link>
+                    </button>
+                    {isCustomer && !task.completed && (
+                      <button
+                        onClick={() => Pay(task.price, task.name)}
+                        className="w-full rounded-xl text-center lg:px-2 lg:py-2 px-2 py-3 border shadow-md btn btn-success dark:btn-secondary"
+                      >
+                        Pay
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           </section>
         </div>

@@ -64,7 +64,8 @@ const TaskForm = () => {
                 type="text"
                 id="title"
                 value={title}
-                className="text-slate-400 w-full outline-none dark:border-slate-600 border-slate-600 border-2 rounded-full bg-transparent py-2 px-8"
+                placeholder="Input task title"
+                className="flex bg-base-200 rounded-full text-accent w-full outline-none dark:border-slate-600 border-slate-600 border-2 bg-transparent py-3.5 px-8"
                 onChange={e => setTitle(e.target.value)}
               />
             </div>

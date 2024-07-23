@@ -1,29 +1,21 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { parseEther } from "viem";
+import { useWalletClient } from "wagmi";
 import { AddressInput } from "~~/components/scaffold-eth";
 import { EtherInput } from "~~/components/scaffold-eth";
-import { useScaffoldWatchContractEvent, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useScaffoldContract, useScaffoldWatchContractEvent } from "~~/hooks/scaffold-eth";
 
 const TaskForm = ({ params }: { params: { vendor: string } }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [loading, setLoading] = useState(false);
-  const [vendorAddress, setVendorAddress] = useState(params.vendor);
-  //   const [image, setImage] = useState("");
-  //   const [time, setTime] = useState("");
-  //   const IPFS_ENDPOINT = process.env.NEXT_PUBLIC_IPFS_ENDPOINT + "/ipfs";
-  const { writeContractAsync } = useScaffoldWriteContract("LinkContract");
-  //   async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
-  //     const file = e.target.files?.[0];
-  //     if (file) {
-  //       const data = await addFileToIpfs(file);
-  //       setImage(`${IPFS_ENDPOINT}/${data.IpfsHash}`);
-  //     }
-  //   }
+  const [vendorAddress, setVendorAddress] = useState(params.vendor || "");
+  const router = useRouter();
   useScaffoldWatchContractEvent({
     contractName: "LinkContract",
     eventName: "TaskAdded",
@@ -35,16 +27,20 @@ const TaskForm = ({ params }: { params: { vendor: string } }) => {
     },
   });
 
+  const { data: walletClient } = useWalletClient();
+  const { data: Contract } = useScaffoldContract({
+    contractName: "LinkContract",
+    walletClient,
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     // Handle form submission logic here
     setLoading(true);
     try {
-      await writeContractAsync({
-        functionName: "addTask",
-        args: [title, description, parseEther(price), vendorAddress as `0x${string}`],
-      });
+      await Contract?.write.addTask([title, description, parseEther(price), vendorAddress as `0x${string}`]);
       setLoading(false);
+      router.push("/profile");
     } catch (error: any) {
       toast.error(error.message);
       setLoading(false);
@@ -64,7 +60,7 @@ const TaskForm = ({ params }: { params: { vendor: string } }) => {
                 type="text"
                 id="title"
                 value={title}
-                className="text-slate-400 w-full outline-none dark:border-slate-600 border-slate-600 border-2 rounded-full bg-transparent py-2 px-8"
+                className="flex border-2 border-slate-600 px-1 py-3.5 bg-base-200 rounded-full text-accent"
                 onChange={e => setTitle(e.target.value)}
               />
             </div>
@@ -91,9 +87,6 @@ const TaskForm = ({ params }: { params: { vendor: string } }) => {
             </div>
           </div>
         </div>
-
-        {/* <label htmlFor="image">Image</label>
-      <input type="file" id="image" onChange={handleImageChange} /> */}
 
         <div className="w-full grid items-center mt-8">
           <button type="submit" className="btn w-full max-w-lg mx-auto px-8 btn-success">

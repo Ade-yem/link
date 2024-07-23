@@ -1,4 +1,3 @@
-// import { NextApiRequest, NextApiResponse } from "next";
 import { Server } from "socket.io";
 import { addMessageTo, getMessages } from "~~/lib/db";
 

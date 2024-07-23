@@ -1,3 +1,5 @@
+"use server";
+
 import User from "./chat";
 import { ChatMessage, Preview } from "~~/types/utils";
 
@@ -7,10 +9,13 @@ export const getUserByAddress = async (address: string) => {
 
 export const initializeUser = async (address: string) => {
   try {
+    const us = await User.findOne({ address: address });
+    if (us) {
+      return;
+    }
     await User.create({ address: address, chats: [], preview: [] });
-    // await user.save();
-  } catch (e) {
-    console.error(e);
+  } catch (e: any) {
+    console.log(e);
   }
 };
 

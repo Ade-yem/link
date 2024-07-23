@@ -165,7 +165,7 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="m-2 p-4">
       <h1 className="text-3xl font-bold text-center">Register</h1>
       <form onSubmit={handleSubmit} className="flex flex-col justify-center mx-auto space-y-4 max-w-md">
         <label className="form-control w-full max-w-lg">

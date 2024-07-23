@@ -130,19 +130,23 @@ function Input({
     setFile("");
   };
   return (
-    <form onSubmit={e => handleSubmit(e)} className="flex justify-center space-x-2">
-      <Image src={image} alt="image" height={80} width={80} className="z-50" />
-      <input type="file" ref={fileRef} onChange={handleFileChange} className="hidden" />
-      <label className="input input-bordered flex items-center gap-2">
-        {loading && <span className="label-text-alt loading loading-dots loading-md text-accent"></span>}
-        <input type="text" name="message" className="grow" placeholder="Write something..." />
-        <div onClick={handleClick}>
-          <PaperClipIcon className="w-6 h-6" />
+    <div className="fixed bottom-20 right-0 left-0 flex justify-center">
+      <form onSubmit={e => handleSubmit(e)} className="flex justify-center flex-col space-x-2">
+        {image.length > 1 && <Image src={image} alt="image" height={80} width={80} className="z-50" />}
+        <input type="file" ref={fileRef} onChange={handleFileChange} className="hidden" />
+        <div className="flex justify-center space-x-2">
+          <label className="input input-bordered flex items-center gap-2">
+            {loading && <span className="label-text-alt loading loading-dots loading-md text-accent"></span>}
+            <input type="text" name="message" className="grow" placeholder="Write something..." />
+            <div onClick={handleClick}>
+              <PaperClipIcon className="w-6 h-6" />
+            </div>
+          </label>
+          <button type="submit" className="btn btn-ghost btn-md">
+            <PaperAirplaneIcon className="w-6 h-6" />
+          </button>
         </div>
-      </label>
-      <button type="submit" className="btn btn-ghost btn-md">
-        <PaperAirplaneIcon className="w-6 h-6" />
-      </button>
-    </form>
+      </form>
+    </div>
   );
 }

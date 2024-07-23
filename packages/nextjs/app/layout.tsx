@@ -6,7 +6,7 @@ import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 
 export const metadata = getMetadata({
   title: "Link",
-  description: "Built with 🏗 Scaffold-ETH 2",
+  description: "Link between consumers and local service providers",
 });
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {

@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 export default function ViewTask({ params }: { params: { task: string } }) {
   const [loading, setLoading] = useState<boolean>(false);
   const { writeContractAsync } = useScaffoldWriteContract("LinkContract");
-
+  const router = useRouter();
   const { data } = useScaffoldReadContract({
     contractName: "LinkContract",
     functionName: "getTask",
@@ -20,7 +22,9 @@ export default function ViewTask({ params }: { params: { task: string } }) {
       args: [name],
       value: price,
     });
+    toast.success("Payment successful");
     setLoading(false);
+    router.push("/profile");
   }
   return (
     <div className="flex flex-col space-y-4 m-4 justify-center">

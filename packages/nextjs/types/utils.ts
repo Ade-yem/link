@@ -52,3 +52,5 @@ export interface ChatMessage {
   imageURI?: string;
   createdAt?: Date;
 }
+
+export const DIVISOR = 10n ** 18n;
