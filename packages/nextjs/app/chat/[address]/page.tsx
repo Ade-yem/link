@@ -3,11 +3,13 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import toast from "react-hot-toast";
-import { io } from "socket.io-client";
 import { useAccount } from "wagmi";
 import { PaperAirplaneIcon, PaperClipIcon } from "@heroicons/react/24/outline";
 import Loading from "~~/components/Loading";
+import { SocketIndicator } from "~~/components/SocketIndicator";
 import BackButton from "~~/components/backButton";
+import { useSocket } from "~~/components/provider/socket";
+import { Address } from "~~/components/scaffold-eth";
 import { createPreview, getRoomFromPreview } from "~~/lib/db";
 import { addFileToIpfs } from "~~/services/web3/pinata";
 import { ChatMessage } from "~~/types/utils";
@@ -16,10 +18,9 @@ export default function Chat({ params }: { params: { address: string } }) {
   const { address } = useAccount();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const query = params.address;
-  const receiver = query?.[0];
-  const [room, setRoom] = useState<string | undefined>(query?.[1] ?? undefined);
-  const socket = io();
+  const receiver = params.address;
+  const [room, setRoom] = useState<string | undefined>(undefined);
+  const { socket } = useSocket();
 
   useEffect(() => {
     setLoading(true);
@@ -29,36 +30,58 @@ export default function Chat({ params }: { params: { address: string } }) {
         if (!res) {
           createPreview(address as string, receiver as string);
           const newRoom = await getRoomFromPreview(address as string, receiver as string);
-          socket.emit("join_room", { sender: address, receiver: receiver, room: newRoom });
+          if (socket) socket.emit("join_room", { sender: address, receiver: receiver, room: newRoom });
           setRoom(newRoom);
           return;
         }
-        socket.emit("join_room", { sender: address, receiver: receiver, room: res });
+        if (socket) socket.emit("join_room", { sender: address, receiver: receiver, room: res });
         setRoom(res);
       }
       getRoom();
     }
-    socket.on("message", data => {
-      setMessages(prev => [...prev, data]);
-    });
-    socket.on("received_message", data => {
-      setMessages(prev => [...prev, data]);
-    });
-    setLoading(false);
+    if (socket) {
+      socket.on("message", (data: any) => {
+        setMessages(prev => [...prev, data]);
+      });
+      socket.on("received_message", (data: ChatMessage) => {
+        setMessages(prev => [...prev, data]);
+      });
+      setLoading(false);
+    }
   }, [socket, receiver, address, room]);
 
   const submit = async (data: ChatMessage) => {
-    socket.emit("send_message", { data, room });
+    if (socket) socket.emit("send_message", { data, room });
   };
 
   return (
-    <div className="relative flex flex-col">
-      {loading && <Loading />}
-      <BackButton />
-      {messages.map((message, index) => (
-        <Message key={index} message={message} owner={address as string} />
-      ))}
+    <div className="relative">
+      <ChatHeader receiver={receiver} />
+      <div className="container mt-20 min-h-[60vh] flex flex-col items-center justify-center mx-auto" id="chats">
+        {messages.length === 0 && loading && <Loading />}
+        {messages.length === 0 && !loading && "Nothing here yet!"}
+        {messages.length > 0 &&
+          messages.map((message, index) => <Message key={index} message={message} owner={address as string} />)}
+      </div>
       <Input sender={address as string} receiver={receiver as string} submit={submit} />
+    </div>
+  );
+}
+
+function ChatHeader({ receiver }: { receiver: string }) {
+  return (
+    <div className="absolute top-4 right-0 left-0">
+      <div className="flex justify-around">
+        <div className="flex flex-start">
+          <BackButton />
+        </div>
+        <div className="flex flex-start">
+          <Address address={receiver as `0x${string}`} />
+        </div>
+        <div className="flex flex-end">
+          <SocketIndicator />
+        </div>
+      </div>
     </div>
   );
 }
@@ -66,8 +89,8 @@ export default function Chat({ params }: { params: { address: string } }) {
 function Message({ message, owner }: { message: ChatMessage; owner: string }) {
   return (
     <div
-      className={`${"card max-w-40 shadow-xl"} ${
-        owner === message.sender ? "bg-success dark:bg-secondary" : "dark:bg-success bg-secondary"
+      className={`${"card max-w-40 shadow-xl p-3"} ${
+        owner === message.sender ? "flex-start bg-success dark:bg-secondary" : "dark:bg-success bg-secondary flex-end"
       }`}
     >
       <figure>

@@ -9,7 +9,7 @@ import { Details } from "~~/types/utils";
 const SearchPage = () => {
   const search = useSearchParams();
   const router = useRouter();
-  const query = search.get("query")?.toLocaleLowerCase() || "";
+  const query = search ? search.get("query")?.toLocaleLowerCase() : "";
   const [result, setResult] = useState<Details[]>([]);
   const handleSearch = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

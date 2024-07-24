@@ -93,7 +93,9 @@ const ProfilePage: NextPage = () => {
         <Loading />
       ) : (
         <div className="flex flex-col items-center justify-center space-y-4">
-          <BackButton />
+          <div className="absolute top-6 left-10">
+            <BackButton />
+          </div>
           <h1 className="text-bold text-2xl mt-8">Profile</h1>
           <div className="flex flex-col space-y-4 justify-center">
             <div className="justify-center flex">

@@ -26,12 +26,19 @@ export default function ChatList() {
   }, [address]);
 
   return (
-    <div className="flex flex-col relative">
-      <BackButton />
+    <div className="flex flex-col relative flex-start">
+      <div className="absolute top-6 left-10">
+        <BackButton />
+      </div>
       <h1>Chats</h1>
-      {chats.map(chat => (
-        <ChatPreview key={chat.receiver} preview={chat} />
-      ))}
+      <div className="flex flex-col justify-start p-3">
+        {chats.length === 0 && (
+          <p className="text-wrap leading-3 text-center font-semibold text-base">
+            No chats yet, please send message to someone so they can appear here
+          </p>
+        )}
+        {chats.length > 0 && chats.map(chat => <ChatPreview key={chat.receiver} preview={chat} />)}
+      </div>
     </div>
   );
 }

@@ -1,9 +1,20 @@
+import { NextApiRequest } from "next";
 import { Server } from "socket.io";
 import { addMessageTo, getMessages } from "~~/lib/db";
 
-export default async function handler(req: any, res: any) {
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
+export default async function handler(req: NextApiRequest, res: any) {
   if (!res.socket.server.io) {
-    const io = new Server(res.socket.server);
+    const path = "/api/socket/io";
+    const io = new Server(res.socket.server, {
+      path: path,
+      addTrailingSlash: false,
+    });
     io.on("connection", socket => {
       console.log("Client connected");
       socket.on("join_room", data => {

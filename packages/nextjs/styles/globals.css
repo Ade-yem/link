@@ -30,3 +30,11 @@ p {
 .btn.btn-ghost {
   @apply shadow-none;
 }
+
+#chat::-webkit-scrollbar {
+  display: "none";
+}
+#chats {
+  scrollbar-width: none;
+  -ms-overflow-style: none,
+}
