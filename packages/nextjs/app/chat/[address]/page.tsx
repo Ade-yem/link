@@ -2,15 +2,16 @@
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
+import { v4 as uuidv4 } from "uuid";
 import { useAccount } from "wagmi";
 import { PaperAirplaneIcon, PaperClipIcon } from "@heroicons/react/24/outline";
 import Loading from "~~/components/Loading";
-import { SocketIndicator } from "~~/components/SocketIndicator";
 import BackButton from "~~/components/backButton";
-import { useSocket } from "~~/components/provider/socket";
 import { Address } from "~~/components/scaffold-eth";
-import { createPreview, getRoomFromPreview, initializeUser } from "~~/lib/db";
+import { useScaffoldContract, useScaffoldWatchContractEvent, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { createPreview } from "~~/lib/db";
 import { addFileToIpfs } from "~~/services/web3/pinata";
 import { ChatMessage } from "~~/types/utils";
 
@@ -19,40 +20,95 @@ export default function Chat({ params }: { params: { address: string } }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const receiver = params.address;
-  const [room, setRoom] = useState<string | undefined>(undefined);
-  const { socket } = useSocket();
+  const search = useSearchParams();
+  const query = search ? search.get("room")?.toLocaleLowerCase() : undefined;
+  const [room_id, setRoom] = useState<string | undefined>(query);
+
+  const { writeContractAsync: writeChatContractAsync } = useScaffoldWriteContract("ChatContract");
+  const { data: Contract } = useScaffoldContract({
+    contractName: "ChatContract",
+  });
 
   useEffect(() => {
     setLoading(true);
-    if (!room) {
+    if (!room_id) {
       async function getRoom() {
-        await initializeUser(address as string);
-        const res = await getRoomFromPreview(address as string, receiver as string);
-        if (!res) {
-          createPreview(address as string, receiver as string);
-          const newRoom = await getRoomFromPreview(address as string, receiver as string);
-          if (socket) socket.emit("join_room", { sender: address, receiver: receiver, room: newRoom });
-          setRoom(newRoom);
-          return;
-        }
-        if (socket) socket.emit("join_room", { sender: address, receiver: receiver, room: res });
-        setRoom(res);
+        const combineAddressesToGetRoomID = async (sender: `0x${string}`, receiver: `0x${string}`) => {
+          const res = await Contract?.read.getRoomIDByAddress([sender, receiver]);
+          if (!res || res.length === 0) {
+            const res = await Contract?.read.getRoomIDByAddress([receiver, sender]);
+            if (!res || res.length === 0) {
+              const room = uuidv4();
+              await writeChatContractAsync({
+                functionName: "createRoom",
+                args: [sender, receiver, room],
+              });
+              return await Contract?.read.getRoomIDByAddress([sender, receiver]);
+            }
+            return res;
+          }
+          return res;
+        };
+        const roomID = await combineAddressesToGetRoomID(address as `0x${string}`, receiver as `0x${string}`);
+        const room = await Contract?.read.getRoom([roomID as `0x${string}`]);
+        await createPreview(address as string, receiver, room as string);
+        if (room) setRoom(room);
+        else console.error("Unable to create room");
       }
       getRoom();
     }
-    if (socket) {
-      socket.on("message", (data: any) => {
-        setMessages(prev => [...prev, data]);
-      });
-      socket.on("received_message", (data: ChatMessage) => {
-        setMessages(prev => [...prev, data]);
-      });
-      setLoading(false);
+    async function getChats() {
+      if (room_id) {
+        const roomMessages = await Contract?.read.getRoomMessages([room_id]);
+        if (roomMessages) {
+          const uniqueMessages: { [id: string]: ChatMessage } = {};
+          roomMessages.forEach((message: ChatMessage) => {
+            uniqueMessages[message.id] = message;
+          });
+          setMessages(Object.values(uniqueMessages));
+        }
+      }
     }
-  }, [socket, receiver, address, room]);
+    getChats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [room_id, address, receiver]);
+
+  useScaffoldWatchContractEvent({
+    contractName: "ChatContract",
+    eventName: "ChatCreated",
+    onLogs: logs => {
+      logs.map(log => {
+        const { id, sender, receiver, message, imageURI, createdAt, room } = log.args;
+        if (room === room_id) {
+          const messageExists = messages.some(message => message.id === id);
+          if (!messageExists) {
+            const newMessage: ChatMessage = {
+              id: id as string,
+              sender: sender as string,
+              receiver: receiver as string,
+              message: message as string,
+              imageURI: imageURI as string,
+              createdAt: createdAt,
+            };
+            setMessages(prev => [...prev, newMessage]);
+          }
+        }
+      });
+    },
+  });
 
   const submit = async (data: ChatMessage) => {
-    if (socket) socket.emit("send_message", { data, room });
+    await writeChatContractAsync({
+      functionName: "createChat",
+      args: [
+        data.id,
+        data.sender as `0x${string}`,
+        data.receiver as `0x${string}`,
+        data.message,
+        data.imageURI,
+        room_id,
+      ],
+    });
   };
 
   return (
@@ -79,15 +135,17 @@ function ChatHeader({ receiver }: { receiver: string }) {
         <div className="flex flex-start">
           <Address address={receiver as `0x${string}`} />
         </div>
-        <div className="flex flex-end">
-          <SocketIndicator />
-        </div>
       </div>
     </div>
   );
 }
 
 function Message({ message, owner }: { message: ChatMessage; owner: string }) {
+  const convertTimeStampToDate = (timestamp: bigint) => {
+    const date = new Date(Number(timestamp));
+    return `${date.getDate()}/${date.getMonth()}/${date.getFullYear()} - ${date.getHours()}:${date.getMinutes()}`;
+  };
+
   return (
     <div
       className={`${"card max-w-40 shadow-xl p-3"} ${
@@ -100,6 +158,7 @@ function Message({ message, owner }: { message: ChatMessage; owner: string }) {
       <div className="card-body">
         <p className="text-base leading-snug">{message.message}</p>
       </div>
+      <span className="text-xs">{message.createdAt && convertTimeStampToDate(message.createdAt)}</span>
     </div>
   );
 }
@@ -115,6 +174,7 @@ function Input({
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [submitLoading, setSubmitLoading] = useState<boolean>(false);
   const [image, setFile] = useState<string>("");
 
   const handleClick = () => fileRef.current?.click();
@@ -141,18 +201,21 @@ function Input({
   };
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setSubmitLoading(true);
     const formData = new FormData(e.currentTarget);
     const message = formData.get("message") as string;
     // Handle form submission with the message data
     const chat: ChatMessage = {
+      id: uuidv4(),
       sender: sender,
       receiver: receiver,
       message: message,
       imageURI: image,
     };
-    submit(chat);
+    await submit(chat);
     setFile("");
     formData.delete("message");
+    setSubmitLoading(false);
   };
   return (
     <div className="fixed bottom-20 right-0 left-0 flex justify-center">
@@ -168,7 +231,8 @@ function Input({
             </div>
           </label>
           <button type="submit" className="btn btn-ghost btn-md">
-            <PaperAirplaneIcon className="w-6 h-6" />
+            {submitLoading && <span className="loading loading-spinner loading-md text-accent"></span>}
+            {!submitLoading && <PaperAirplaneIcon className="w-6 h-6" />}
           </button>
         </div>
       </form>

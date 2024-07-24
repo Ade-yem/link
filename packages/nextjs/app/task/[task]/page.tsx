@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { DIVISOR } from "~~/types/utils";
 
 export default function ViewTask({ params }: { params: { task: string } }) {
   const [loading, setLoading] = useState<boolean>(false);
@@ -31,7 +32,7 @@ export default function ViewTask({ params }: { params: { task: string } }) {
       <h1 className="text-bold text-xl text-center p-3">Task</h1>
       <div className="flex justify-center">
         {data && (
-          <div className="card">
+          <div className="card leading-4">
             <div className="flex flex-col space-y-4">
               <div className="flex flex-col space-y-2">
                 <div className="flex flex-col space-y-2">
@@ -44,7 +45,7 @@ export default function ViewTask({ params }: { params: { task: string } }) {
                 </div>
                 <div className="flex flex-col space-y-2">
                   <div className="text-base text-bold">Task Price</div>
-                  <div className="text-base">{(BigInt(data.price) / BigInt(10) ** BigInt(18)).toString()} ETH</div>
+                  <div className="text-base">{Number(data.price) / Number(DIVISOR)} ETH</div>
                 </div>
                 <div className="flex flex-col space-y-2">
                   <div className="text-base text-bold">Task Status</div>

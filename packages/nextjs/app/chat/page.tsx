@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import io from "socket.io-client";
 import { useAccount } from "wagmi";
 import BackButton from "~~/components/backButton";
 import { Address } from "~~/components/scaffold-eth";
@@ -48,18 +47,10 @@ export default function ChatList() {
 
 function ChatPreview({ preview }: { preview: Preview }) {
   const router = useRouter();
-  const socket = io();
-  const { address } = useAccount();
-
   return (
     <div
       onClick={() => {
-        socket.emit("join_room", {
-          sender: address,
-          receiver: preview.receiver,
-          room: preview.room,
-        });
-        router.push(`/chat/${preview.receiver}/${preview.room}`);
+        router.push(`/chat/${preview.receiver}?room=${preview.room}`);
       }}
       className="flex flex-col border border-neutral gap-2 p-3"
     >

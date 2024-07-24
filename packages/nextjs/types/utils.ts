@@ -45,12 +45,12 @@ export interface Preview {
 }
 
 export interface ChatMessage {
-  id?: ObjectId;
+  id: string;
   sender: string;
   receiver: string;
   message: string;
   imageURI?: string;
-  createdAt?: Date;
+  createdAt?: bigint;
 }
 
 export const DIVISOR = 10n ** 18n;

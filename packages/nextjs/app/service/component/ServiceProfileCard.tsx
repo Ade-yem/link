@@ -35,7 +35,7 @@ const ServiceProfileCard = ({
       {/* <Image src={rating} width={70} height={70} alt="rating" className="h-[20px]" /> */}
       <div className="w-[75%] flex items-center justify-center space-x-1">
         <Button type="customizedBlack" text={"Profile"} to={`/profile/${profileLink}`} />
-        <Button type="customizedWhite" text={"Message"} to={`/chat/#`} />
+        <Button type="customizedWhite" text={"Message"} to={`/chat/${profileLink}`} />
       </div>
     </div>
   );

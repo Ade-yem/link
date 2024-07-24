@@ -1,0 +1,35 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/chat_app.sol": {
+      "content": "// SPDX-License-Identifier: UNLICENSED\r\npragma solidity ^0.8.0;\r\n\r\ncontract ChatContract {\r\n    struct Chat {\r\n        string id;\r\n        address sender;\r\n        address receiver;\r\n        string message;\r\n        string imageURI;\r\n        uint256 createdAt;\r\n    }\r\n    Chat[] public chatList;\r\n    event ChatCreated(string id, address sender, address receiver, string message, string imageURI, uint256 createdAt);\r\n\r\n    /** \r\n     * @dev Creates a chat and emits a ChatCreated event\r\n     * @param _id id of the message\r\n     * @param sender sender address\r\n     * @param receiver receiver address\r\n     * @param message message sent\r\n     * @param imageURI image sent\r\n     */\r\n    function createChat(string memory _id, address sender, address receiver, string memory message, string memory imageURI) public {\r\n        Chat memory chat = Chat(_id, sender, receiver, message, imageURI, block.timestamp);\r\n        chatList.push(chat);\r\n        emit ChatCreated(_id, sender, receiver, message, imageURI, block.timestamp);\r\n    }\r\n\r\n    /**\r\n     * @dev retrieve all chats from the chat list\r\n     */\r\n    function getChats() public view returns (Chat[] memory) {\r\n        return chatList;\r\n    }\r\n}"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}

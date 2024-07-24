@@ -1,0 +1,35 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/chat_app.sol": {
+      "content": "// SPDX-License-Identifier: UNLICENSED\r\npragma solidity ^0.8.0;\r\n\r\ncontract ChatContract {\r\n    struct Chat {\r\n        string id;\r\n        address sender;\r\n        address receiver;\r\n        string message;\r\n        string imageURI;\r\n        uint256 createdAt;\r\n    }\r\n\r\n    mapping (string => Chat[]) roomMessages;\r\n    mapping (bytes32 => string) rooms;\r\n\r\n    event ChatCreated(string id, address sender, address receiver, string message, string imageURI, uint256 createdAt, string room);\r\n\r\n    /** \r\n     * @dev Creates a chat and emits a ChatCreated event\r\n     * @param _id id of the message\r\n     * @param sender sender address\r\n     * @param receiver receiver address\r\n     * @param message message sent\r\n     * @param imageURI image sent\r\n     */\r\n    function createChat(string memory _id, address sender, address receiver, string memory message, string memory imageURI, string memory room) public {\r\n        Chat memory chat = Chat(_id, sender, receiver, message, imageURI, block.timestamp);\r\n        roomMessages[room].push(chat);\r\n        emit ChatCreated(_id, sender, receiver, message, imageURI, block.timestamp, room);\r\n    }\r\n\r\n    /**\r\n     * @dev retrieve all chats from the chat list\r\n     */\r\n    function getRoomMessages(string memory room) public view returns (Chat[] memory) {\r\n        return roomMessages[room];\r\n    }\r\n\r\n    /**\r\n     * @dev generate a room id\r\n     * @param addr1 first address\r\n     * @param addr2 second address\r\n     */\r\n    function generateKey(address addr1, address addr2) public pure returns (bytes32) {\r\n        return keccak256(abi.encodePacked(addr1, addr2));\r\n    }\r\n\r\n    /**\r\n     * @dev create a room\r\n     * @param addr1 first address\r\n     * @param addr2 second address\r\n     */\r\n    function createRoom(address addr1, address addr2) public {\r\n        bytes32 key = generateKey(addr1, addr2);\r\n        rooms[key] = \"room\";\r\n    }\r\n\r\n    /**\r\n     * @dev get a room\r\n     * @param addr1 first address\r\n     * @param addr2 second address\r\n     */\r\n    function getRoom(address addr1, address addr2) public view returns (string memory) {\r\n        bytes32 key = generateKey(addr1, addr2);\r\n        return rooms[key];\r\n    }    \r\n}"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}

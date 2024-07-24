@@ -6,6 +6,240 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const deployedContracts = {
   4202: {
+    ChatContract: {
+      address: "0x7564763F898Ef95b1d2717BA2f0D5dDFaf03CF28",
+      abi: [
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "string",
+              name: "id",
+              type: "string",
+            },
+            {
+              indexed: false,
+              internalType: "address",
+              name: "sender",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "address",
+              name: "receiver",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "message",
+              type: "string",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "imageURI",
+              type: "string",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "createdAt",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "room",
+              type: "string",
+            },
+          ],
+          name: "ChatCreated",
+          type: "event",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "_id",
+              type: "string",
+            },
+            {
+              internalType: "address",
+              name: "sender",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "receiver",
+              type: "address",
+            },
+            {
+              internalType: "string",
+              name: "message",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "imageURI",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "room",
+              type: "string",
+            },
+          ],
+          name: "createChat",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "addr1",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "addr2",
+              type: "address",
+            },
+            {
+              internalType: "string",
+              name: "room",
+              type: "string",
+            },
+          ],
+          name: "createRoom",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "addr1",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "addr2",
+              type: "address",
+            },
+          ],
+          name: "generateKey",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "pure",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "_id",
+              type: "bytes32",
+            },
+          ],
+          name: "getRoom",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "addr1",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "addr2",
+              type: "address",
+            },
+          ],
+          name: "getRoomIDByAddress",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "room",
+              type: "string",
+            },
+          ],
+          name: "getRoomMessages",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "string",
+                  name: "id",
+                  type: "string",
+                },
+                {
+                  internalType: "address",
+                  name: "sender",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "receiver",
+                  type: "address",
+                },
+                {
+                  internalType: "string",
+                  name: "message",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "imageURI",
+                  type: "string",
+                },
+                {
+                  internalType: "uint256",
+                  name: "createdAt",
+                  type: "uint256",
+                },
+              ],
+              internalType: "struct ChatContract.Chat[]",
+              name: "",
+              type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+      ],
+      inheritedFunctions: {},
+    },
     LinkContract: {
       address: "0x50fA36b67daFdc52BDCF6077545b6E4Aa6f9b4db",
       abi: [

@@ -22,6 +22,16 @@ type Tasks = {
   completed: boolean;
 }[];
 
+type Task = {
+  id: `0x${string}`;
+  name: string;
+  description: string;
+  price: bigint;
+  vendor: `0x${string}` | string;
+  customer: `0x${string}` | string;
+  completed: boolean;
+};
+
 const ProfilePage: NextPage = () => {
   const { address: connectedAddress } = useAccount();
   const { writeContractAsync } = useScaffoldWriteContract("LinkContract");
@@ -65,7 +75,11 @@ const ProfilePage: NextPage = () => {
             tasks.push(val);
           }
         }
-        setAllTasks(tasks);
+        const uniqueTasks: { [id: `0x${string}`]: Task } = {};
+        tasks.forEach((task: Task) => {
+          uniqueTasks[task.id] = task; // This will ensure each message is unique by its id
+        });
+        setAllTasks(Object.values(uniqueTasks));
       }
     }
     getTasks();
