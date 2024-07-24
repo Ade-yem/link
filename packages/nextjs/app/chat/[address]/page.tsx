@@ -10,7 +10,7 @@ import { SocketIndicator } from "~~/components/SocketIndicator";
 import BackButton from "~~/components/backButton";
 import { useSocket } from "~~/components/provider/socket";
 import { Address } from "~~/components/scaffold-eth";
-import { createPreview, getRoomFromPreview } from "~~/lib/db";
+import { createPreview, getRoomFromPreview, initializeUser } from "~~/lib/db";
 import { addFileToIpfs } from "~~/services/web3/pinata";
 import { ChatMessage } from "~~/types/utils";
 
@@ -26,6 +26,7 @@ export default function Chat({ params }: { params: { address: string } }) {
     setLoading(true);
     if (!room) {
       async function getRoom() {
+        await initializeUser(address as string);
         const res = await getRoomFromPreview(address as string, receiver as string);
         if (!res) {
           createPreview(address as string, receiver as string);
@@ -151,6 +152,7 @@ function Input({
     };
     submit(chat);
     setFile("");
+    formData.delete("message");
   };
   return (
     <div className="fixed bottom-20 right-0 left-0 flex justify-center">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import io from "socket.io-client";
 import { useAccount } from "wagmi";
 import BackButton from "~~/components/backButton";
@@ -26,16 +26,19 @@ export default function ChatList() {
   }, [address]);
 
   return (
-    <div className="flex flex-col relative flex-start">
+    <div className="flex flex-col relative">
       <div className="absolute top-6 left-10">
         <BackButton />
       </div>
-      <h1>Chats</h1>
-      <div className="flex flex-col justify-start p-3">
+      <h1 className="text-center">Chats</h1>
+      <div className="flex flex-col justify-start p-3 min-h-[70vh] items-center">
         {chats.length === 0 && (
-          <p className="text-wrap leading-3 text-center font-semibold text-base">
-            No chats yet, please send message to someone so they can appear here
-          </p>
+          <div>
+            <p className="text-wrap leading-3 text-center font-semibold text-base">
+              No chats yet, please send message to someone so they can appear here.
+            </p>
+            <p className="text-wrap leading-3 text-center font-semibold text-base">Chat feature coming soon.</p>
+          </div>
         )}
         {chats.length > 0 && chats.map(chat => <ChatPreview key={chat.receiver} preview={chat} />)}
       </div>

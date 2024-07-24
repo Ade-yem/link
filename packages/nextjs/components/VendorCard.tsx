@@ -15,8 +15,8 @@ export default function VendorCard({ details }: { details: Details }) {
         <button className="btn btn-md btn-ghost bg-success dark:bg-secondary">
           <a href={`/profile/${details.walletAddress}`}>View Profile</a>
         </button>
-        <button className="btn btn-md btn-ghost dark:bg-success bg-secondary">
-          <a href={`/chat/${details.walletAddress}`}>Message</a>
+        <button className="btn btn-md btn-ghost dark:bg-success bg-secondary" disabled>
+          <a href={`/chat/#`}>Message</a>
         </button>
       </div>
     </div>
