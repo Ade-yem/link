@@ -50,10 +50,10 @@ export default function Chat({ params }: { params: { address: string } }) {
           return res;
         };
         const roomID = await combineAddressesToGetRoomID(address as `0x${string}`, receiver as `0x${string}`);
-        const room = await Contract?.read.getRoom([roomID as `0x${string}`]);
-        await createPreview(address as string, receiver, room as string);
-        if (room) setRoom(room);
-        else console.error("Unable to create room");
+        if (roomID) {
+          setRoom(roomID);
+          await createPreview(address as string, receiver, roomID as string);
+        } else console.error("Unable to create room");
       }
       getRoom();
     }
@@ -72,6 +72,8 @@ export default function Chat({ params }: { params: { address: string } }) {
     getChats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [room_id, address, receiver]);
+
+  useEffect(() => console.log("room id => ", room_id), [room_id]);
 
   useScaffoldWatchContractEvent({
     contractName: "ChatContract",

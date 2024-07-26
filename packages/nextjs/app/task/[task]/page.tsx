@@ -53,9 +53,15 @@ export default function ViewTask({ params }: { params: { task: string } }) {
                 </div>
               </div>
               <div className="card-actions">
-                <button className="btn btn-primary" onClick={() => Pay(data.price, data.name)}>
-                  {loading ? <span className="loading loading-lg loading-dots text-secondary"></span> : "Pay for Task"}
-                </button>
+                {!data.completed && (
+                  <button className="btn btn-primary" onClick={() => Pay(data.price, data.name)}>
+                    {loading ? (
+                      <span className="loading loading-lg loading-dots text-secondary"></span>
+                    ) : (
+                      "Pay for Task"
+                    )}
+                  </button>
+                )}
               </div>
             </div>
           </div>

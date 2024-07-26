@@ -29,7 +29,7 @@ export default function ChatList() {
       <div className="absolute top-6 left-10">
         <BackButton />
       </div>
-      <h1 className="text-center">Chats</h1>
+      <h1 className="text-center mt-10 text-bold text-xl">Chats</h1>
       <div className="flex flex-col justify-start p-3 min-h-[70vh] items-center">
         {chats.length === 0 && (
           <div>

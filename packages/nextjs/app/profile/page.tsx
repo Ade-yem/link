@@ -6,6 +6,7 @@ import Link from "next/link";
 import man from "/public/man.svg";
 import { NextPage } from "next";
 import { useAccount } from "wagmi";
+import { EnvelopeIcon, PhoneIcon, UserIcon, WalletIcon } from "@heroicons/react/24/outline";
 import Loading from "~~/components/Loading";
 import BackButton from "~~/components/backButton";
 import { Address } from "~~/components/scaffold-eth";
@@ -132,10 +133,26 @@ const ProfilePage: NextPage = () => {
               )}
             </div>
             <div className="flex flex-col justify-center">
-              {prof && prof[0] !== undefined && <h3 className="font-bold text-center mb-2 text-lg">{prof[0]}</h3>}
+              {prof && prof[0] !== undefined && (
+                <h3 className="font-bold text-center mb-2 text-lg flex space-x-2 justify-center">
+                  {<UserIcon />} {prof[0]}
+                </h3>
+              )}
+              {prof && prof[1] !== undefined && (
+                <p className="font-bold text-center mb-2 text-lg flex space-x-2 justify-center">
+                  {<EnvelopeIcon />} {prof[1]}
+                </p>
+              )}
+              {prof && prof[2] !== undefined && (
+                <p className="font-bold text-center mb-2 text-lg flex space-x-2 justify-center">
+                  {<PhoneIcon />} {prof[2]}
+                </p>
+              )}
               {isVendor && ven && ven[0] !== undefined && <p className="text-semibold text-center mb-2">{ven[0]}</p>}
               {isVendor && ven && ven[5] && (
-                <p className="text-semibold mb-2 text-center">My balance: {Number(ven[5]) / Number(DIVISOR)} ETH</p>
+                <p className="text-semibold mb-2 text-center flex justify-center space-x-2">
+                  <WalletIcon /> {Number(ven[5]) / Number(DIVISOR)} ETH
+                </p>
               )}
               {prof && prof[3] !== undefined && (
                 <p className="flex space-x-2 justify-center">

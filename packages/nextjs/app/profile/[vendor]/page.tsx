@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import man from "/public/man.svg";
+import { EnvelopeIcon, PhoneIcon, UserIcon } from "@heroicons/react/24/outline";
 import BackButton from "~~/components/backButton";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 
@@ -21,8 +22,10 @@ const ViewProfile = ({ params }: { params: { vendor: string } }) => {
 
   return (
     <div>
-      <div className="flex flex-col items-center justify-center space-y-4">
-        <BackButton />
+      <div className="flex flex-col items-center justify-center space-y-4 relative">
+        <div className="absolute top-3 left-10">
+          <BackButton />
+        </div>
         <h1 className="text-bold text-2xl mt-8">Profile</h1>
         <div className="flex flex-col space-y-4 justify-center">
           <div className="justify-center flex">
@@ -39,7 +42,21 @@ const ViewProfile = ({ params }: { params: { vendor: string } }) => {
             )}
           </div>
           <div className="flex flex-col justify-center">
-            {prof && prof[0] !== undefined && <h3 className="font-bold text-center mb-2 text-lg">{prof[0]}</h3>}
+            {prof && prof[0] !== undefined && (
+              <h3 className="font-bold text-center mb-2 text-lg flex space-x-2 justify-center">
+                {<UserIcon />} {prof[0]}
+              </h3>
+            )}
+            {prof && prof[1] !== undefined && (
+              <p className="font-bold text-center mb-2 text-lg flex space-x-2 justify-center">
+                {<EnvelopeIcon />} {prof[1]}
+              </p>
+            )}
+            {prof && prof[2] !== undefined && (
+              <p className="font-bold text-center mb-2 text-lg flex space-x-2 justify-center">
+                {<PhoneIcon />} {prof[2]}
+              </p>
+            )}
             {ven && ven[0] !== undefined && <p className="text-semibold text-center mb-2">{ven[0]}</p>}
             {prof && prof[3] !== undefined && (
               <p className="flex space-x-2 justify-center">
