@@ -1,5 +1,3 @@
-import { ObjectId } from "mongodb";
-
 export type Tuple<T, MaxLength extends number = 10, Current extends T[] = []> = Current["length"] extends MaxLength
   ? Current
   : Current | Tuple<T, MaxLength, [T, ...Current]>;
@@ -37,11 +35,10 @@ export interface Profile {
 }
 
 export interface Preview {
-  id?: ObjectId;
-  receiver: string;
-  sender: string;
+  user1: string;
+  user2: string;
   room: string;
-  updatedAt?: Date;
+  room_hash: string;
 }
 
 export interface ChatMessage {
@@ -50,7 +47,8 @@ export interface ChatMessage {
   receiver: string;
   message: string;
   imageURI?: string;
-  createdAt?: bigint;
+  timestamp?: Date;
+  room?: string;
 }
 
 export const DIVISOR = 10n ** 18n;

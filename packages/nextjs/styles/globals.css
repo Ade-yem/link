@@ -38,3 +38,32 @@ p {
   scrollbar-width: none;
   -ms-overflow-style: none,
 }
+
+
+#page {
+  display: grid;
+  width: 100%;
+  height: 70vh;
+  grid-template-areas: 
+  "header header header"
+  "messages messages messages"
+  "messages messages messages"
+  "messages messages messages"
+  "messages messages messages"
+  "messages messages messages"
+  "messages messages messages"
+  "messages messages messages"
+  ". input .";
+}
+
+#page > #header {
+  grid-area: header;
+}
+
+#page > #chats {
+  grid-area: messages;
+}
+
+#page > #input {
+  grid-area: input;
+}

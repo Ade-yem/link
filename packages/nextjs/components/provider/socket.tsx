@@ -19,10 +19,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    const socketInstance: Socket = new (ClientIO as any)(process.env.NEXT_PUBLIC_SITE_URL, {
-      path: "/api/socket/io",
-      addTrailingSlash: false,
-    });
+    const socketInstance: Socket = new (ClientIO as any)(process.env.NEXT_PUBLIC_SOCKET_URL);
     socketInstance.on("connect_error", (error: any) => {
       console.log(error);
     });

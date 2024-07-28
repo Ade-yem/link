@@ -10,7 +10,6 @@ import {
   useScaffoldWatchContractEvent,
   useScaffoldWriteContract,
 } from "~~/hooks/scaffold-eth";
-import { initializeUser } from "~~/lib/db";
 import { addFileToIpfs } from "~~/services/web3/pinata";
 import { Profile } from "~~/types/utils";
 
@@ -155,7 +154,6 @@ const RegisterPage: React.FC = () => {
           args: [name, email, phoneNumber, address, role, picture],
         });
       }
-      initializeUser(connectedAddress as string);
       setLoading(false);
       router.replace("/profile");
     } catch (error) {
